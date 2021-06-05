@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<style type="text/css">
+	<!--
+		.tab 
+	-->
+</style>
+	</head>
+	<title>Deneme</title>
+	<h1></h1>
+	<body>
+		{% if event_list %}
+		{% for event in event_list %}
+		<p style="margin-left: 0px">{{event.description}}</p>
+			<ul>
+				<p>{{event.participants.member}}</p>
+				{% for group in group_list%}
+					{%ifequal group.event_id event %}
+					<p>{{group.group_name}}</p>
+						{% for person in group.member.all %}
+							<p style="margin-left: 40px">{{person.name}}</p>
+						{% endfor %}
+					{%endifequal%}
+				{%endfor%}
+			{% endfor %}
+			</ul>
+		{% else %}
+			<p>No events are available.</p>
+		{% endif %}
+	</body>
+</html>

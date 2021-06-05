@@ -7,51 +7,53 @@ from django.db.models.functions import Now
 class Bet(models.Model):
     id = models.AutoField()
     id.primary_key = True
-    amount = models.IntegerField(null=False)
-    item = models.IntegerField(null=False)
+    amount = models.PositiveSmallIntegerField()
+    item = models.CharField(max_length=100)
     event = models.ForeignKey("Event", on_delete=models.CASCADE)
-    bet_item = models.ForeignKey("ItemType", on_delete=models.CASCADE)
+    betting_on = models.ForeignKey("Group", on_delete=models.CASCADE)
     creation_time = models.DateTimeField(Now())
-    change_time = models.DateTimeField(creation_time.minute + 5)
+
+    def __str__(self):
+        return str(self.event) + "-bet " + str(self.id)
 
 
 class Group(models.Model):
     id = models.AutoField()
     id.primary_key = True
-    groupies = models.ManyToManyField("User", related_name="Group_Members", )
+    group_name = models.CharField(max_length=20, null=True, blank=True, default="New Group")
+    event_id = models.ForeignKey("Event", on_delete=models.CASCADE)
+    member = models.ManyToManyField("User", related_name="Group_Members")
+    group_bet_amount = models.PositiveSmallIntegerField()
+    group_bet = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.group_name
 
 
 class User(models.Model):
     id = models.AutoField()
     id.primary_key = True
-    #picture
-    #winrate
-    #old bets
-    #current bets
-    #password
+    # picture
+    # win rate
+    # old bets
+    # current bets
+    # password
     name = models.CharField(max_length=100)
-    bets = models.ManyToManyField("Bet", related_name="Placed_Bet")
+    # password = models.CharField(max_length=100)
+    # picture = models.ImageField()
+    bets = models.ManyToManyField("Bet", related_name="Placed_Bet", blank=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Event(models.Model):
     id = models.AutoField()
     id.primary_key = True
-    description = models.CharField(max_length=150)
-    prize = models.CharField(max_length=100)
+    description = models.CharField(max_length=150, null=True, blank=True)
     creator = models.ForeignKey("User", on_delete=models.CASCADE)
     event_time = models.DateTimeField()
-    event_type = models.IntegerField(null=False)
-    participants = models.ManyToManyField("Group", related_name="Participates")
-    type = models.ForeignKey("EventTypes", on_delete=models.CASCADE)
+    event_type = models.CharField(max_length=100)
 
-
-class EventType(models.Model):
-    id = models.AutoField()
-    id.primary_key = True
-    event_type_name = models.CharField(max_length=150)
-
-
-class ItemType(models.Model):
-    id = models.AutoField()
-    id.primary_key = True
-    item_type_name = models.CharField(max_length=150)
+    def __str__(self):
+        return str(self.id) + " " + self.description
