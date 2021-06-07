@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	<style type="text/css">
-	<!--
-		.tab 
-	-->
-</style>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
 	</head>
-	<title>Deneme</title>
+	
 	<h1></h1>
+	
 	<body>
 		{% if event_list %}
-		{% for event in event_list %}
-		<p style="margin-left: 0px">{{event.description}}</p>
-			<ul>
-				<p>{{event.participants.member}}</p>
-				{% for group in group_list%}
-					{%ifequal group.event_id event %}
-					<p>{{group.group_name}}</p>
-						{% for person in group.member.all %}
-							<p style="margin-left: 40px">{{person.name}}</p>
-						{% endfor %}
-					{%endifequal%}
-				{%endfor%}
-			{% endfor %}
-			</ul>
+			{% for event in event_list%}
+				<div class="events" style="background-color:#f2d8cc">
+					<div class="row">
+						<h2 style="position:relative;text-align:center;background-color:#c7e3d0;">{{event.description}}</h2>
+						{% for group in group_list %}
+							{% ifequal group.event_id event %}
+							<div class="col" style="margin:auto;background-color:#e7e6ce;text-align:center;" >
+								<ul style="list-style-type:none;">
+									<p style="position:relative;"><strong>{{group.group_name}}</strong></p>
+								{% for person in group.member.all %}
+									<li style="margin:auto;">{{person.name}}</li>
+								{%endfor%}
+								</ul>
+							</div>
+							{%endifequal%}
+						{%endfor%}
+					</div>
+				</div>
+				<p><br></p>
+			{%endfor%}
 		{% else %}
-			<p>No events are available.</p>
+			<p><strong>No events are available.</strong></p>
 		{% endif %}
 	</body>
 </html>
