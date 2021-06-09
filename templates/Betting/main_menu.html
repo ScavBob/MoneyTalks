@@ -1,27 +1,23 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
-	</head>
-	
-	<h1></h1>
-	
-	<body>
+{% extends "base.html"%}
+    {% block content %}
 		{% if event_list %}
 			{% for event in event_list%}
-				<div class="events" style="background-color:#f2d8cc">
+				<div class="events" style="background-color:#f2d8cc;">
 					<div class="row">
-						<h2 style="position:relative;text-align:center;background-color:#c7e3d0;">{{event.description}}</h2>
+						<a href="event/{{event.id}}"><h2 style="position:relative;text-align:center;background-color:#c7e3d0;font-size:31px">{{event.description}}</a>
+						<!--<button type="button" class="btn btn-primary" style="float:right;">Add Group</button>-->
+						</h2>
 						{% for group in group_list %}
 							{% ifequal group.event_id event %}
 							<div class="col" style="margin:auto;background-color:#e7e6ce;text-align:center;" >
 								<ul style="list-style-type:none;">
-									<p style="position:relative;"><strong>{{group.group_name}}</strong></p>
+									<p style="position:relative;font-size:25px"><strong>{{group.group_name}}</strong></p>
 								{% for person in group.member.all %}
-									<li style="margin:auto;">{{person.name}}</li>
+									<li style="margin:1%;">{{person.name}}</li>
 								{%endfor%}
+								<!--<li style="margin:2%;"><button type="button" class="btn btn-success" style="float:center;">Join {{group.group_name}}</button></li>-->
+								<li style="font-size:20px;"><strong><u>Betting</u></strong></li>
+								<li>{{group.group_bet_amount}} {{group.group_bet}}</li>
 								</ul>
 							</div>
 							{%endifequal%}
@@ -30,8 +26,11 @@
 				</div>
 				<p><br></p>
 			{%endfor%}
+			<div class="addevent" style="background-color:#cafcaf">
+				
+			</div>
 		{% else %}
-			<p><strong>No events are available.</strong></p>
+			<p style="text-align:center"><strong>No events are available.</strong></p>
 		{% endif %}
-	</body>
-</html>
+		<button class="btn btn-success" style="float:center;width:100%">ADD AN EVENT</button>
+    {% endblock %}

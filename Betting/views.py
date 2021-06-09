@@ -6,12 +6,14 @@ from .models import Bet, Group, User, Event
 
 
 # Create your views here.
-def index(request):
-    event_list = Event.objects.all()
-    group_list = Group.objects.all()
-    template = loader.get_template('Betting/main_menu.html')
-    context = {
-        'event_list'    : event_list,
-        'group_list'    : group_list,
-    }
-    return HttpResponse(template.render(context, request))
+class EventView(TemplateView):
+    template_name = "Betting/main_menu.html"
+
+    def get(self, request):
+        event_list = Event.objects.all()
+        group_list = Group.objects.all()
+        context = {
+            'event_list'    : event_list,
+            'group_list'    : group_list,
+        }
+        return render(request, self.template_name, context)
