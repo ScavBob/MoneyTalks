@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2 style="text-align: center;">{{ event.description }}</h2>
+    <h4 style="text-align: center;"><strong>{{ event.event_type }}</strong></h4>
+    {% if group_list %}
+        <p><br></p>
+        <div class="row">
+		    {% for group in group_list %}
+		    	<div class="col" style="margin:auto;background-color:#e7e6ce;text-align:center;" >
+		    		<ul style="list-style-type:none;">
+		    			<p style="position:relative;font-size:25px"><strong>{{group.group_name}}</strong></p>
+                    {% if not already_in_group %}
+                        <form action="/event/join/{{ group.id }}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-primary">JOIN GROUP</button>
+                        </form>
+                    {% elif user in group.member.all  %}
+                        <form action="/event/leave/{{ group.id }}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger">LEAVE GROUP</button>
+                        </form>
+                    {% endif %}
+		    		{% for person in group.member.all %}
+		    			<li style="margin:1%;">{{person.username}}</li>
+		    		{%endfor%}
+		    		<!--<li style="margin:2%;"><button type="button" class="btn btn-success" style="float:center;">Join {{group.group_name}}</button></li>-->
+		    		<li style="font-size:20px;"><strong><u>Betting</u></strong></li>
+		    		<li>{{group.group_bet_amount}} {{group.group_bet}}</li>
+		    		</ul>
+		    	</div>
+		    {%endfor%}
+        </div>
+    {% endif %}
+    {% if not already_in_group %}
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#denemeModal" style="width:100%">ADD A GROUP</button>
+        <div class="modal fade" id="denemeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">New Group</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="/addGroup/{{ event.id }}" method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Add Group</button>
+                      </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nevermind</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif not user.id%}
+        <form action="/login/" method="get">
+            <button type="submit" class="btn btn-success" style="width:100%">LOGIN TO ADD A GROUP</button>
+        </form>
+    {% endif %}
+{% endblock %}

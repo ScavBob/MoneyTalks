@@ -13,10 +13,8 @@ class SignUpView(TemplateView):
     def post(self, request):
         form = SignUpForm(request.POST)
         if form.is_valid():
-            print("Hello")
             user = form.save()
             user.refresh_from_db()
-            print(user)
             user.profile.name = form.cleaned_data.get("name")
             user.profile.surname = form.cleaned_data.get("surname")
             user.save()
@@ -37,6 +35,5 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
     template_name = "Core/User/user.html"
 
     def get(self, request):
-        print(request.user.id)
         profile = request.user.profile
         return render(request, self.template_name, {'profile': profile})
