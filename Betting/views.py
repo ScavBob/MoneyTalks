@@ -20,22 +20,24 @@ class ActiveEventView(TemplateView):
             'group_list': group_list,
             'form': form,
             'var_active': True,
+            'navbar': True,
         }
         return render(request, self.template_name, context)
 
 
 class InactiveEventView(TemplateView):
-    template_name = "Betting/inactive_events.html"
+    template_name = "Betting/Event/inactive_events.html"
 
     def get(self, request):
         event_list = Event.objects.all()
-        group_list = Group.objects.filter()
+        group_list = Group.objects.all()
         form = EventCreationForm()
         context = {
             'event_list': event_list,
             'group_list': group_list,
             'form': form,
-            'var_active' : False,
+            'var_active': False,
+            'navbar': True,
         }
         return render(request, self.template_name, context)
 
@@ -90,6 +92,7 @@ class EventDetailsView(TemplateView):
             'group_list': group_list,
             'form': form,
             'already_in_group': already_in_group,
+            'navbar': True,
         }
         return render(request, self.template_name, context)
 
@@ -117,8 +120,8 @@ class BetView(TemplateView):
     template_name = "Betting/bet.html"
 
     def get(self, request, bet_id):
-        bet = Bet.objects.get(pk = bet_id)
-        context={
-            "bet":bet,
+        bet = Bet.objects.get(pk=bet_id)
+        context = {
+            "bet": bet,
         }
         return render(request, self.template_name, context)

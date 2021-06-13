@@ -23,10 +23,11 @@ import Core.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Betting.views.ActiveEventView.as_view(), name="events"),
+    path('/<str:filter>', Betting.views.ActiveEventView.as_view(), name="events"),
     path('previousEvents/', Betting.views.InactiveEventView.as_view(), name="previous_events"),
     path('signup/', Core.views.SignUpView.as_view(), name="signup"),
     path('profile/', Core.views.UserProfileView.as_view(), name="profile"),
-    path('login/', LoginView.as_view(template_name="Core/login.html"), name='login'),
+    path('login/', LoginView.as_view(template_name="Core/User/login.html"), name='login'),
     path('logout/', LogoutView.as_view(), name="logout"),
     path('addEvent/', Betting.views.CreateEvent.as_view(), name="create_event"),
     path('event/<int:id>/', Betting.views.EventDetailsView.as_view(), name="event_details"),

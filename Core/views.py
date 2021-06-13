@@ -8,7 +8,7 @@ from Core.forms import SignUpForm
 
 
 class SignUpView(TemplateView):
-    template_name = "Core/sign_up.html"
+    template_name = "Core/User/sign_up.html"
 
     def post(self, request):
         form = SignUpForm(request.POST)
@@ -24,11 +24,19 @@ class SignUpView(TemplateView):
             login(request, user)
             return HttpResponseRedirect('/profile/')
         else:
-            return render(request, "Core/error.html", {'form': form})
+            context = {
+                'form': form,
+                'navbar' : False,
+            }
+            return render(request, "Core/error.html", context)
 
     def get(self, request):
         form = SignUpForm()
-        return render(request, self.template_name, {'form': form})
+        context = {
+            'form': form,
+            'navbar': False,
+        }
+        return render(request, self.template_name, context)
 
 
 class UserProfileView(LoginRequiredMixin, TemplateView):
@@ -36,4 +44,8 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
 
     def get(self, request):
         profile = request.user.profile
-        return render(request, self.template_name, {'profile': profile})
+        context = {
+            'profile': profile,
+            'navbar': True,
+        }
+        return render(request, self.template_name, context)

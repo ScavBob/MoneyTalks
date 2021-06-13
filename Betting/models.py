@@ -95,8 +95,9 @@ class Event(models.Model):
     def __str__(self):
         return str(self.id) + " " + self.description
 
-# class Tournament(models.Model):
-# description = models.CharField(max_length=150)
-# amount = models.IntegerField()
-# prize = models.CharField(max_length=100)
-# time = models.DateTimeField()
+
+#class Tournament(models.Model):
+    #description = models.CharField(max_length=150)
+    #amount = models.IntegerField()
+    #prize = models.CharField(max_length=100)
+    #time = models.DateTimeField()
