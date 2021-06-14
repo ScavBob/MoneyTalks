@@ -23,19 +23,21 @@ import Core.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Betting.views.ActiveEventView.as_view(), name="events"),
-    path('/<str:filter>/', Betting.views.ActiveEventView.as_view(), name="events"),
+    path('search/', Betting.views.ActiveEventView.as_view(), name="events"),
     path('previousEvents/', Betting.views.InactiveEventView.as_view(), name="previous_events"),
     path('signup/', Core.views.SignUpView.as_view(), name="signup"),
     path('profile/', Core.views.UserProfileView.as_view(), name="profile"),
     path('login/', LoginView.as_view(template_name="Core/User/login.html"), name='login'),
     path('logout/', LogoutView.as_view(), name="logout"),
     path('addEvent/', Betting.views.CreateEvent.as_view(), name="create_event"),
+    path('removeEvent/<int:event_id>', Betting.views.DeleteEvent.as_view(), name="delete_event"),
     path('event/<int:id>/', Betting.views.EventDetailsView.as_view(), name="event_details"),
     path('addGroup/<int:event_id>', Betting.views.CreateGroup.as_view(), name="create_group"),
     path('event/join/<int:group_id>', Betting.views.JoinGroup.as_view(), name='join_group'),
     path('event/leave/<int:group_id>', Betting.views.LeaveGroup.as_view(), name='join_group'),
-    path('bet/<int:bet_id>', Betting.views.BetView.as_view(), name="bet"),
-    path('events/<int:user_id>', Betting.views.UserEventsView.as_view(), name="user_views"),
-    path('removeEvent/<int:event_id>', Betting.views.DeleteEvent.as_view(), name="delete_event")
+    path('bets/<int:user_id>', Betting.views.UserBetsView.as_view(), name="user_bets"),
+    path('events/<int:user_id>', Betting.views.UserEventsView.as_view(), name="user_events"),
+    path('addBet/<int:group_id>', Betting.views.CreateBet.as_view(), name="create_bet"),
+
 
 ]

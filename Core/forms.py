@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from Betting.models import Event, Group
+from Betting.models import Event, Group, Bet
 from django import forms
 from django.forms import ModelForm, DateTimeField, DateTimeInput
 
@@ -34,3 +34,9 @@ class GroupCreationForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ('group_name', 'group_bet_amount', 'group_bet')
+
+
+class BetCreationForm(forms.ModelForm):
+    class Meta:
+        model = Bet
+        fields = ('amount', 'item')

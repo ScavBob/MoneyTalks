@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.template import loader
 from django.views.generic import TemplateView
 from .models import Bet, Group, User, Event
-from Core.forms import EventCreationForm, GroupCreationForm
+from Core.forms import EventCreationForm, GroupCreationForm, BetCreationForm
 
 
 # Create your views here.
@@ -88,21 +88,30 @@ class EventDetailsView(TemplateView):
     def get(self, request, id):
         event = Event.objects.get(pk=id)
         group_list = Group.objects.filter(event_id=id)
-        form = GroupCreationForm()
-        already_in_group = False
+        group_adding_form = GroupCreationForm()
+        betting_on_group_form = BetCreationForm()
+        bets = Bet.objects.filter(better=request.user)
+        participated = False
         if request.user.id is None:
-            already_in_group = True
+            participated = True
 
-        for group in group_list:
-            if request.user in group.member.all():
-                already_in_group = True
+        for bet in bets:
+            if bet.event == event:
+                participated = True
                 break
+
+        if not participated:
+            for group in group_list:
+                if request.user in group.member.all():
+                    participated = True
+                    break
 
         context = {
             'event': event,
             'group_list': group_list,
-            'form': form,
-            'already_in_group': already_in_group,
+            'group_adding_form': group_adding_form,
+            'betting_on_group_form': betting_on_group_form,
+            'participated': participated,
             'navbar': True,
         }
         return render(request, self.template_name, context)
@@ -127,13 +136,20 @@ class LeaveGroup(TemplateView):
         return HttpResponseRedirect("/event/" + str(group.event_id.id))
 
 
-class BetView(TemplateView):
-    template_name = "Betting/bet.html"
+class UserBetsView(TemplateView):
+    template_name = "Betting/Event/events.html"
 
-    def get(self, request, bet_id):
-        bet = Bet.objects.get(pk=bet_id)
+    def get(self, request, user_id):
+        bets = Bet.objects.filter(better=user_id)
+        events = []
+        for bet in bets:
+            events.append(bet.event)
+        events.sort(reverse=True, key=eventSort)
         context = {
-            "bet": bet,
+            'event_list': events,
+            'group_list': Group.objects.all(),
+            'navbar': True,
+            'var_active': -1,
         }
         return render(request, self.template_name, context)
 
@@ -158,3 +174,17 @@ class UserEventsView(LoginRequiredMixin, TemplateView):
             'var_active': -1,
         }
         return render(request, self.template_name, context)
+
+
+class CreateBet(LoginRequiredMixin, TemplateView):
+
+    def post(self, request, group_id):
+        form = BetCreationForm(request.POST)
+        if form.is_valid():
+            group = Group.objects.get(pk=group_id)
+            bet = form.save(commit=False)
+            bet.event = group.event_id
+            bet.betting_on = group
+            bet.better = request.user
+            bet.save()
+            return HttpResponseRedirect('/event/' + str(group.event_id.id))

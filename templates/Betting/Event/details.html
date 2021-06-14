@@ -2,6 +2,7 @@
 {% block content %}
     <h1 style="text-align: center;">{{ event.description }}</h1>
     <h4 style="text-align: center;"><strong>{{ event.event_type }}</strong></h4>
+    <h5 style="text-align: center;"><strong>{{event.event_date}} {{ event.event_time }}</strong></h5>
     {% if group_list %}
         <p><br></p>
         <div class="row">
@@ -10,7 +11,7 @@
 		    		<ul style="list-style-type:none;">
 		    			<p style="position:relative;font-size:25px"><strong>{{group.group_name}}</strong></p>
                     {% if event.active %}
-                        {% if not already_in_group %}
+                        {% if not participated %}
                             <form action="/event/join/{{ group.id }}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-outline-primary">JOIN GROUP</button>
@@ -25,18 +26,46 @@
 		    		{% for person in group.member.all %}
 		    			<li style="margin:1%;">{{person.username}}</li>
 		    		{%endfor%}
-		    		<!--<li style="margin:2%;"><button type="button" class="btn btn-success" style="float:center;">Join {{group.group_name}}</button></li>-->
 		    		<li style="font-size:20px;"><strong><u>Betting</u></strong></li>
 		    		<li>{{group.group_bet_amount}} {{group.group_bet}}</li>
 		    		</ul>
+                {% if event.active %}
+                    {% if not participated %}
+                        <ul>
+                            <li>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#betting_on_group_modal" >BET ON A GROUP</button>
+                                <div class="modal fade" id="betting_on_group_modal" tabindex="-1" aria-labelledby="betting_on_group_modal_label" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">New Group</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <form action="/addBet/{{ group.id }}" method="post">
+                                                {% csrf_token %}
+                                                {{ betting_on_group_form.as_p }}
+                                                <button type="submit" class="btn btn-primary">Bet On Group</button>
+                                              </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nevermind</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    {% endif %}
+                {% endif %}
 		    	</div>
 		    {%endfor%}
         </div>
     {% endif %}
     {% if event.active %}
-        {% if not already_in_group %}
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#denemeModal" style="width:100%">ADD A GROUP</button>
-            <div class="modal fade" id="denemeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        {% if not participated %}
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#group_adding_modal" style="width:100%">ADD A GROUP</button>
+            <div class="modal fade" id="group_adding_modal" tabindex="-1" aria-labelledby="group_adding_modal_label" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -46,7 +75,7 @@
                         <div class="modal-body">
                           <form action="/addGroup/{{ event.id }}" method="post">
                             {% csrf_token %}
-                            {{ form.as_p }}
+                            {{ group_adding_form.as_p }}
                             <button type="submit" class="btn btn-primary">Add Group</button>
                           </form>
                         </div>
