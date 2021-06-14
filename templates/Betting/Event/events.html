@@ -4,11 +4,16 @@
     {% block content %}
 		{% if event_list %}
 			{% for event in event_list %}
-                {% if event.active == var_active %}
+                {% if event.active == var_active or var_active == -1%}
 				<div class="events" style="background-color:#f2d8cc;">
 					<div class="row">
-                        <a href="event/{{event.id}}"><h2 style="position:relative;text-align:center;background-color:#c7e3d0;font-size:31px">{{event.description}}</h2></a>
-						<!--<button type="button" class="btn btn-primary" style="float:right;">Add Group</button>-->
+                        <a href="/event/{{event.id}}"><h2 style="position:relative;text-align:center;background-color:#c7e3d0;font-size:31px">{{event.description}}</h2></a>
+                        {% if event.creator == user and event.active%}
+                        <form action="/removeEvent/{{ event.id }}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-danger" type="submit" style="float: right">REMOVE EVENT</button>
+                        </form>
+                            {% endif %}
 						</h2>
 						{% for group in group_list %}
 							{% ifequal group.event_id event %}
@@ -33,7 +38,7 @@
 		{% else %}
 			<p style="text-align:center"><strong>No events are available.</strong></p>
 		{% endif %}
-        {% if user.id %}
+        {% if user.id and not var_active == -1 %}
         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#denemeModal" style="width:100%">CREATE A NEW EVENT</button>
         <div class="modal fade" id="denemeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -55,7 +60,7 @@
                 </div>
             </div>
         </div>
-        {% else %}
+        {% elif not var_active == -1  %}
             <form action="/login/" method="get">
                 <button type="submit" class="btn btn-success" style="width:100%">LOGIN TO CREATE AN EVENT</button>
             </form>

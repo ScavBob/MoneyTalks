@@ -81,6 +81,7 @@ class Event(models.Model):
     event_date = models.DateField()
     event_time = models.TimeField()
     event_type = models.CharField(max_length=100)
+    winner = models.OneToOneField("Group", on_delete=models.CASCADE, null=True, blank=True)
     # tournament = models.ForeignKey("Tournament", on_delete=models.CASCADE, null=True, blank=True)
 
     @property

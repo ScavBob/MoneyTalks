@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -12,7 +14,7 @@ class ActiveEventView(TemplateView):
     template_name = "Betting/Event/events.html"
 
     def get(self, request):
-        event_list = Event.objects.all()
+        event_list = reversed(Event.objects.all().order_by('-event_date', '-event_time'))
         group_list = Group.objects.filter()
         form = EventCreationForm()
         context = {
@@ -53,6 +55,15 @@ class CreateEvent(LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect('/event/' + str(event.id))
         else:
             return render(request, "Core/error.html", {'form': form})
+
+
+class DeleteEvent(LoginRequiredMixin, TemplateView):
+
+    def post(self, request, event_id):
+        event = Event.objects.get(pk=event_id)
+        if event.creator == request.user:
+            event.delete()
+            return HttpResponseRedirect('/')
 
 
 class CreateGroup(LoginRequiredMixin, TemplateView):
@@ -123,5 +134,27 @@ class BetView(TemplateView):
         bet = Bet.objects.get(pk=bet_id)
         context = {
             "bet": bet,
+        }
+        return render(request, self.template_name, context)
+
+
+def eventSort(event):
+    return datetime.combine(event.event_date, event.event_time)
+
+
+class UserEventsView(LoginRequiredMixin, TemplateView):
+    template_name = "Betting/Event/events.html"
+
+    def get(self, request, user_id):
+        groups = Group.objects.filter(member__in=[user_id])
+        events = []
+        for group in groups:
+            events.append(group.event_id)
+        events.sort(reverse=True, key=eventSort)
+        context = {
+            'event_list': events,
+            'group_list': Group.objects.all(),
+            'navbar': True,
+            'var_active': -1,
         }
         return render(request, self.template_name, context)
