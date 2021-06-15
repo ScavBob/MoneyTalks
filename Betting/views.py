@@ -84,6 +84,23 @@ class CreateGroup(LoginRequiredMixin, TemplateView):
             return render(request, "Core/error.html", {'form': form})
 
 
+class SearchEventView(TemplateView):
+    template_name = "Betting/Event/active_events.html"
+
+    def post(self, request, search_string):
+        event_list = Event.objects.filter(description__contains=search_string, event_type__contains=search_string)
+        group_list = Group.objects.filter()
+        event_bets = Bet.objects.all()
+        context = {
+            'event_list': event_list,
+            'group_list': group_list,
+            'bet_list': event_bets,
+            'var_active': True,
+            'navbar': -1,
+        }
+        return render(request, self.template_name, context)
+
+
 class EventDetailsView(TemplateView):
     template_name = "Betting/Event/details.html"
 

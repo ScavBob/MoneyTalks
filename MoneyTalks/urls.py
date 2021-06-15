@@ -23,7 +23,7 @@ import Core.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Betting.views.ActiveEventView.as_view(), name="events"),
-    path('search/', Betting.views.ActiveEventView.as_view(), name="events"),
+    path('search/', Betting.views.SearchEventView.as_view(), name="events"),
     path('previousEvents/', Betting.views.InactiveEventView.as_view(), name="previous_events"),
     path('signup/', Core.views.SignUpView.as_view(), name="signup"),
     path('profile/', Core.views.UserProfileView.as_view(), name="profile"),

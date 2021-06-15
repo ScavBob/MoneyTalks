@@ -40,3 +40,5 @@ class BetCreationForm(forms.ModelForm):
     class Meta:
         model = Bet
         fields = ('amount', 'item')
+
+
