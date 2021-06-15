@@ -11,15 +11,17 @@ from Core.forms import EventCreationForm, GroupCreationForm, BetCreationForm
 
 # Create your views here.
 class ActiveEventView(TemplateView):
-    template_name = "Betting/Event/events.html"
+    template_name = "Betting/Event/active_events.html"
 
     def get(self, request):
         event_list = reversed(Event.objects.all().order_by('-event_date', '-event_time'))
         group_list = Group.objects.filter()
+        event_bets = Bet.objects.all()
         form = EventCreationForm()
         context = {
             'event_list': event_list,
             'group_list': group_list,
+            'bet_list': event_bets,
             'form': form,
             'var_active': True,
             'navbar': True,
@@ -91,6 +93,7 @@ class EventDetailsView(TemplateView):
         group_adding_form = GroupCreationForm()
         betting_on_group_form = BetCreationForm()
         bets = Bet.objects.filter(better=request.user)
+        event_bets = Bet.objects.filter(event=id)
         participated = False
         if request.user.id is None:
             participated = True
@@ -109,6 +112,7 @@ class EventDetailsView(TemplateView):
         context = {
             'event': event,
             'group_list': group_list,
+            'bet_list': event_bets,
             'group_adding_form': group_adding_form,
             'betting_on_group_form': betting_on_group_form,
             'participated': participated,
@@ -137,7 +141,7 @@ class LeaveGroup(TemplateView):
 
 
 class UserBetsView(TemplateView):
-    template_name = "Betting/Event/events.html"
+    template_name = "Betting/Event/active_events.html"
 
     def get(self, request, user_id):
         bets = Bet.objects.filter(better=user_id)
@@ -159,7 +163,7 @@ def eventSort(event):
 
 
 class UserEventsView(LoginRequiredMixin, TemplateView):
-    template_name = "Betting/Event/events.html"
+    template_name = "Betting/Event/active_events.html"
 
     def get(self, request, user_id):
         groups = Group.objects.filter(member__in=[user_id])
@@ -188,3 +192,12 @@ class CreateBet(LoginRequiredMixin, TemplateView):
             bet.better = request.user
             bet.save()
             return HttpResponseRedirect('/event/' + str(group.event_id.id))
+
+
+class RemoveBet(LoginRequiredMixin, TemplateView):
+
+    def post(self, request, bet_id):
+        bet = Bet.objects.get(pk=bet_id)
+        event_id = bet.event_id
+        bet.delete()
+        return HttpResponseRedirect('/event/' + str(event_id))

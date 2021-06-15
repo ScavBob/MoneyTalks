@@ -27,6 +27,14 @@
 								<li style="font-size:20px;"><strong><u>Betting</u></strong></li>
 								<li>{{group.group_bet_amount}} {{group.group_bet}}</li>
 								</ul>
+                                {% for bet in bet_list %}
+                                    {% ifequal bet.betting_on group %}
+                                        <ul style="list-style-type: none">
+                                            <li><strong>{{ bet.better.username }}</strong></li>
+                                            <li>{{ bet.amount }} {{ bet.item }}</li>
+                                        </ul>
+                                    {% endifequal %}
+                                {% endfor %}
 							</div>
 							{%endifequal%}
 						{%endfor%}
@@ -39,8 +47,8 @@
 			<p style="text-align:center"><strong>No events are available.</strong></p>
 		{% endif %}
         {% if user.id and not var_active == -1 %}
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#denemeModal" style="width:100%">CREATE A NEW EVENT</button>
-        <div class="modal fade" id="denemeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#event_adding_modal" style="width:100%">CREATE A NEW EVENT</button>
+        <div class="modal fade" id="event_adding_modal" tabindex="-1" aria-labelledby="event_adding_modal_label" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">

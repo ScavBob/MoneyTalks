@@ -29,9 +29,25 @@
 		    		<li style="font-size:20px;"><strong><u>Betting</u></strong></li>
 		    		<li>{{group.group_bet_amount}} {{group.group_bet}}</li>
 		    		</ul>
+                    {% for bet in bet_list %}
+                        {% ifequal bet.betting_on group %}
+                            <ul style="list-style-type: none">
+                                <li><strong>{{ bet.better.username }}</strong></li>
+                                <li>{{ bet.amount }} {{ bet.item }}</li>
+                                {% ifequal user bet.better %}
+                                    <form method="post" action="/removeBet/{{ bet.id }}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-outline-danger" type="submit">
+                                            REMOVE BET
+                                        </button>
+                                    </form>
+                                {% endifequal %}
+                            </ul>
+                        {% endifequal %}
+                    {% endfor %}
                 {% if event.active %}
                     {% if not participated %}
-                        <ul>
+                        <ul style="list-style-type: none">
                             <li>
                                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#betting_on_group_modal" >BET ON A GROUP</button>
                                 <div class="modal fade" id="betting_on_group_modal" tabindex="-1" aria-labelledby="betting_on_group_modal_label" aria-hidden="true">
