@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1 style="text-align: center;">{{ event.description }}</h1>
+    <h4 style="text-align: center;"><strong>{{ event.event_type }}</strong></h4>
+    <h5 style="text-align: center;"><strong>{{event.event_date}} {{ event.event_time }}</strong></h5>
+    {% if group_list %}
+        <p><br></p>
+        <div class="row">
+		    {% for group in group_list %}
+		    	<div class="col" style="margin:auto;background-color:#e7e6ce;text-align:center;" >
+		    		<ul style="list-style-type:none;">
+		    			<p style="position:relative;font-size:25px"><strong>{{group.group_name}}</strong></p>
+		    		{% for person in group.member.all %}
+		    			<li style="margin:1%;">{{person.username}}</li>
+		    		{%endfor%}
+		    		<li style="font-size:20px;"><strong><u>Betting</u></strong></li>
+		    		<li>{{group.group_bet_amount}} {{group.group_bet}}</li>
+		    		</ul>
+                    {% for bet in bet_list %}
+                        {% ifequal bet.betting_on group %}
+                            <ul style="list-style-type: none">
+                                <li><strong>{{ bet.better.username }}</strong></li>
+                                <li>{{ bet.amount }} {{ bet.item }}</li>
+                            </ul>
+                        {% endifequal %}
+                    {% endfor %}
+		    	</div>
+		    {%endfor%}
+        </div>
+    {% endif %}
+{% endblock %}
