@@ -42,3 +42,9 @@ class BetCreationForm(forms.ModelForm):
         fields = ('amount', 'item')
 
 
+class SearchEventForm(forms.ModelForm):
+    description = forms.CharField(label='')
+
+    class Meta:
+        model = Event
+        fields = ('description',)

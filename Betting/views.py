@@ -3,14 +3,22 @@ from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.template import loader
 from django.views.generic import TemplateView
 from .models import Bet, Group, User, Event
-from Core.forms import EventCreationForm, GroupCreationForm, BetCreationForm
+from Core.forms import EventCreationForm, GroupCreationForm, BetCreationForm, SearchEventForm
 
 
 # Create your views here.
-class ActiveEventView(TemplateView):
+def eventSort(event):
+    return datetime.combine(event.event_date, event.event_time)
+
+
+class ExtendedTemplateView(TemplateView):
+    search = SearchEventForm()
+    navbar = True
+
+
+class ActiveEventView(ExtendedTemplateView):
     template_name = "Betting/Event/active_events.html"
 
     def get(self, request):
@@ -18,18 +26,20 @@ class ActiveEventView(TemplateView):
         group_list = Group.objects.filter()
         event_bets = Bet.objects.all()
         form = EventCreationForm()
+
         context = {
             'event_list': event_list,
             'group_list': group_list,
             'bet_list': event_bets,
             'form': form,
             'var_active': True,
-            'navbar': True,
+            'navbar': self.navbar,
+            'search': self.search,
         }
         return render(request, self.template_name, context)
 
 
-class InactiveEventView(TemplateView):
+class InactiveEventView(ExtendedTemplateView):
     template_name = "Betting/Event/inactive_events.html"
 
     def get(self, request):
@@ -41,12 +51,13 @@ class InactiveEventView(TemplateView):
             'group_list': group_list,
             'form': form,
             'var_active': False,
-            'navbar': True,
+            'navbar': self.navbar,
+            'search': self.search,
         }
         return render(request, self.template_name, context)
 
 
-class CreateEvent(LoginRequiredMixin, TemplateView):
+class CreateEvent(LoginRequiredMixin, ExtendedTemplateView):
 
     def post(self, request):
         form = EventCreationForm(request.POST)
@@ -59,7 +70,7 @@ class CreateEvent(LoginRequiredMixin, TemplateView):
             return render(request, "Core/error.html", {'form': form})
 
 
-class DeleteEvent(LoginRequiredMixin, TemplateView):
+class DeleteEvent(LoginRequiredMixin, ExtendedTemplateView):
 
     def post(self, request, event_id):
         event = Event.objects.get(pk=event_id)
@@ -68,7 +79,7 @@ class DeleteEvent(LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect('/')
 
 
-class CreateGroup(LoginRequiredMixin, TemplateView):
+class CreateGroup(LoginRequiredMixin, ExtendedTemplateView):
 
     def post(self, request, event_id):
         form = GroupCreationForm(request.POST)
@@ -84,24 +95,57 @@ class CreateGroup(LoginRequiredMixin, TemplateView):
             return render(request, "Core/error.html", {'form': form})
 
 
-class SearchEventView(TemplateView):
+class SearchEventView(ExtendedTemplateView):
     template_name = "Betting/Event/active_events.html"
 
-    def post(self, request, search_string):
-        event_list = Event.objects.filter(description__contains=search_string, event_type__contains=search_string)
-        group_list = Group.objects.filter()
-        event_bets = Bet.objects.all()
-        context = {
-            'event_list': event_list,
-            'group_list': group_list,
-            'bet_list': event_bets,
-            'var_active': True,
-            'navbar': -1,
-        }
-        return render(request, self.template_name, context)
+    def get(self, request):
+        return HttpResponseRedirect("/")
+
+    def post(self, request):
+        event_search = SearchEventForm(request.POST)
+        if event_search.is_valid():
+            search_string = event_search.cleaned_data['description']
+            people = User.objects.filter(username__contains=search_string)
+            people_groups = Group.objects.filter(member__in=people)
+            desc_filter = Event.objects.filter(description__contains=search_string)
+            type_filter = Event.objects.filter(event_type__contains=search_string)
+            group_list = Group.objects.filter()
+            event_bets = Bet.objects.all()
+            all_events = []
+
+            for event in desc_filter:
+                all_events.append(event)
+
+            for event in type_filter:
+                if event not in all_events:
+                    all_events.append(event)
+
+            for group in group_list:
+                if search_string in group.group_name or search_string in group.group_bet:
+                    if group.event_id not in all_events:
+                        all_events.append(group.event_id)
+
+            for bet in event_bets:
+                if search_string in bet.item:
+                    if bet.event not in all_events:
+                        all_events.append(bet.event)
+
+            for group in people_groups:
+                if group.event_id not in all_events:
+                    all_events.append(group.event_id)
+            all_events.sort(reverse=True, key=eventSort)
+            context = {
+                'event_list': all_events,
+                'group_list': group_list,
+                'bet_list': event_bets,
+                'var_active': -1,
+                'navbar': self.navbar,
+                'search': self.search,
+            }
+            return render(request, self.template_name, context)
 
 
-class EventDetailsView(TemplateView):
+class EventDetailsView(ExtendedTemplateView):
     template_name = "Betting/Event/details.html"
 
     def get(self, request, id):
@@ -133,12 +177,13 @@ class EventDetailsView(TemplateView):
             'group_adding_form': group_adding_form,
             'betting_on_group_form': betting_on_group_form,
             'participated': participated,
-            'navbar': True,
+            'navbar': self.navbar,
+            'search': self.search,
         }
         return render(request, self.template_name, context)
 
 
-class JoinGroup(TemplateView):
+class JoinGroup(ExtendedTemplateView):
 
     def post(self, request, group_id):
         group = Group.objects.get(pk=group_id)
@@ -157,11 +202,11 @@ class LeaveGroup(TemplateView):
         return HttpResponseRedirect("/event/" + str(group.event_id.id))
 
 
-class UserBetsView(TemplateView):
+class UserBetsView(ExtendedTemplateView):
     template_name = "Betting/Event/active_events.html"
 
-    def get(self, request, user_id):
-        bets = Bet.objects.filter(better=user_id)
+    def get(self, request):
+        bets = Bet.objects.filter(better=request.user.id)
         events = []
         for bet in bets:
             events.append(bet.event)
@@ -169,21 +214,18 @@ class UserBetsView(TemplateView):
         context = {
             'event_list': events,
             'group_list': Group.objects.all(),
-            'navbar': True,
             'var_active': -1,
+            'navbar': self.navbar,
+            'search': self.search,
         }
         return render(request, self.template_name, context)
 
 
-def eventSort(event):
-    return datetime.combine(event.event_date, event.event_time)
-
-
-class UserEventsView(LoginRequiredMixin, TemplateView):
+class UserEventsView(LoginRequiredMixin, ExtendedTemplateView):
     template_name = "Betting/Event/active_events.html"
 
-    def get(self, request, user_id):
-        groups = Group.objects.filter(member__in=[user_id])
+    def get(self, request):
+        groups = Group.objects.filter(member__in=[request.user])
         events = []
         for group in groups:
             events.append(group.event_id)
@@ -191,13 +233,14 @@ class UserEventsView(LoginRequiredMixin, TemplateView):
         context = {
             'event_list': events,
             'group_list': Group.objects.all(),
-            'navbar': True,
             'var_active': -1,
+            'navbar': self.navbar,
+            'search': self.search,
         }
         return render(request, self.template_name, context)
 
 
-class CreateBet(LoginRequiredMixin, TemplateView):
+class CreateBet(LoginRequiredMixin, ExtendedTemplateView):
 
     def post(self, request, group_id):
         form = BetCreationForm(request.POST)
@@ -211,7 +254,7 @@ class CreateBet(LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect('/event/' + str(group.event_id.id))
 
 
-class RemoveBet(LoginRequiredMixin, TemplateView):
+class RemoveBet(LoginRequiredMixin, ExtendedTemplateView):
 
     def post(self, request, bet_id):
         bet = Bet.objects.get(pk=bet_id)
