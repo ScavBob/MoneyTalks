@@ -146,7 +146,7 @@ class SearchEventView(ExtendedTemplateView):
 
 
 class EventDetailsView(ExtendedTemplateView):
-    template_name = "Betting/Event/details.html"
+    template_name = "Betting/Event/active_event_details/../templates/Betting/Event/details/active_event_details.html"
 
     def get(self, request, id):
         event = Event.objects.get(pk=id)
