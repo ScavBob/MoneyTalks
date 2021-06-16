@@ -49,12 +49,12 @@
                     {% if not participated %}
                         <ul style="list-style-type: none">
                             <li>
-                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#betting_on_group_modal" >PLACE A BET</button>
-                                <div class="modal fade" id="betting_on_group_modal" tabindex="-1" aria-labelledby="betting_on_group_modal_label" aria-hidden="true">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#betting_on_group_{{ group.id }}_modal" >PLACE A BET</button>
+                                <div class="modal fade" id="betting_on_group_{{ group.id }}_modal" tabindex="-1" aria-labelledby="betting_on_group_modal_label" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="exampleModalLabel">New BEt</h5>
+                                                <h5 class="modal-title" id="exampleModalLabel">New Bet</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">

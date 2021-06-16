@@ -6,8 +6,8 @@
        </a>
       <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="/profile/">Profile</a></li>
-            <li><a class="dropdown-item" href="/events/{{ user.id }}">Prior Participations</a></li>
-            <li><a class="dropdown-item" href="/bets/{{ user.id }}">My Bets</a></li>
+            <li><a class="dropdown-item" href="/events/">Prior Participations</a></li>
+            <li><a class="dropdown-item" href="/bets/">My Bets</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="/logout">Logout</a></li>
           </ul>
@@ -27,7 +27,8 @@
           </li>
       </ul>
       <form class="d-flex" method="post" action="/search/">
-        <input id="event_search" class="form-control me-2" type="event_search" name="search" placeholder="Search Event" aria-label="Search">
+          {% csrf_token %}
+          {{ search }}
         <button class="btn btn-outline-success" type="submit">Search</button>
       </form>
     </div>
