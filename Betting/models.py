@@ -37,10 +37,6 @@ class Bet(models.Model):
     def active(self) -> bool:
         return timezone.localtime() < self.invalidation_time
 
-    @property
-    def won(self) -> bool:
-        return self.event.winner == self.betting_on
-
     def __str__(self):
         return str(self.event) + "-bet " + str(self.id)
 
@@ -66,23 +62,14 @@ def update_profile(sender, instance, created, **kwargs):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # picture
+    # win rate
+    # old bets
+    # current bets
+    # password
     name = models.CharField(max_length=100)
     surname = models.CharField(max_length=100)
 
     # picture = models.ImageField()
-
-    @property
-    def win_rate(self):
-        groups = Group.objects.filter(member__in=[self.user.id])
-        wins = 0
-        lose = 0
-        for group in groups:
-            if not group.event_id.tie:
-                if group.event_id.winner == group:
-                    wins += 1
-                else:
-                    lose += 1
-        return wins / len(groups)
 
     def __str__(self):
         return self.user.username
@@ -94,34 +81,24 @@ class Event(models.Model):
     event_date = models.DateField()
     event_time = models.TimeField()
     event_type = models.CharField(max_length=100)
-    tie = models.BooleanField(null=True, blank=True)
     winner = models.OneToOneField("Group", on_delete=models.CASCADE, null=True, blank=True)
-
     # tournament = models.ForeignKey("Tournament", on_delete=models.CASCADE, null=True, blank=True)
 
     @property
     def active(self) -> bool:
+        active = True
         if timezone.localdate() > self.event_date:
-            return False
+            active = False
         elif timezone.localdate() == self.event_date and timezone.localtime().time() > self.event_time:
-            return False
-        return True
-
-    @property
-    def finalized(self) -> bool:
-        if not self.active and self.winner is not None:
-            return True
-        elif not self.active and self.tie:
-            return True
-        else:
-            return False
+            active = False
+        return active
 
     def __str__(self):
         return str(self.id) + " " + self.description
 
 
-# class Tournament(models.Model):
-# description = models.CharField(max_length=150)
-# amount = models.IntegerField()
-# prize = models.CharField(max_length=100)
-# time = models.DateTimeField()
+#class Tournament(models.Model):
+    #description = models.CharField(max_length=150)
+    #amount = models.IntegerField()
+    #prize = models.CharField(max_length=100)
+    #time = models.DateTimeField()

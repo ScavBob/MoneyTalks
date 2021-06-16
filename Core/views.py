@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
-from Core.forms import SignUpForm, SearchEventForm
+from Core.forms import SignUpForm
 
 
 class SignUpView(TemplateView):
@@ -26,7 +26,7 @@ class SignUpView(TemplateView):
         else:
             context = {
                 'form': form,
-                'navbar': False,
+                'navbar' : False,
             }
             return render(request, "Core/error.html", context)
 
@@ -44,10 +44,8 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
 
     def get(self, request):
         profile = request.user.profile
-        search = SearchEventForm()
         context = {
             'profile': profile,
             'navbar': True,
-            'search': search,
         }
         return render(request, self.template_name, context)

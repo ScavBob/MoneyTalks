@@ -35,8 +35,8 @@ urlpatterns = [
     path('addGroup/<int:event_id>', Betting.views.CreateGroup.as_view(), name="create_group"),
     path('event/join/<int:group_id>', Betting.views.JoinGroup.as_view(), name='join_group'),
     path('event/leave/<int:group_id>', Betting.views.LeaveGroup.as_view(), name='join_group'),
-    path('bets/', Betting.views.UserBetsView.as_view(), name="user_bets"),
-    path('events/', Betting.views.UserEventsView.as_view(), name="user_events"),
+    path('bets/<int:user_id>', Betting.views.UserBetsView.as_view(), name="user_bets"),
+    path('events/<int:user_id>', Betting.views.UserEventsView.as_view(), name="user_events"),
     path('addBet/<int:group_id>', Betting.views.CreateBet.as_view(), name="create_bet"),
     path('removeBet/<int:bet_id>', Betting.views.RemoveBet.as_view(), name="remove_bet"),
 
