@@ -105,10 +105,10 @@ class SearchEventView(ExtendedTemplateView):
         event_search = SearchEventForm(request.POST)
         if event_search.is_valid():
             search_string = event_search.cleaned_data['description']
-            people = User.objects.filter(username__contains=search_string)
+            people = User.objects.filter(username__icontains=search_string)
             people_groups = Group.objects.filter(member__in=people)
-            desc_filter = Event.objects.filter(description__contains=search_string)
-            type_filter = Event.objects.filter(event_type__contains=search_string)
+            desc_filter = Event.objects.filter(description__icontains=search_string)
+            type_filter = Event.objects.filter(event_type__icontains=search_string)
             group_list = Group.objects.filter()
             event_bets = Bet.objects.all()
             all_events = []
@@ -121,12 +121,12 @@ class SearchEventView(ExtendedTemplateView):
                     all_events.append(event)
 
             for group in group_list:
-                if search_string in group.group_name or search_string in group.group_bet:
+                if search_string in group.group_name or search_string.lower() in group.group_bet.lower():
                     if group.event_id not in all_events:
                         all_events.append(group.event_id)
 
             for bet in event_bets:
-                if search_string in bet.item:
+                if search_string.lower() in bet.item.lower():
                     if bet.event not in all_events:
                         all_events.append(bet.event)
 
