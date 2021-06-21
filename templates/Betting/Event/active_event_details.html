@@ -35,12 +35,14 @@
                                 <li><strong>{{ bet.better.username }}</strong></li>
                                 <li>{{ bet.amount }} {{ bet.item }}</li>
                                 {% ifequal user bet.better %}
-                                    <form method="post" action="/removeBet/{{ bet.id }}">
-                                        {% csrf_token %}
-                                        <button class="btn btn-outline-danger" type="submit">
-                                            REMOVE BET
-                                        </button>
-                                    </form>
+                                    {% if bet.active %}
+                                        <form method="post" action="/removeBet/{{ bet.id }}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-outline-danger" type="submit">
+                                                REMOVE BET
+                                            </button>
+                                        </form>
+                                    {% endif %}
                                 {% endifequal %}
                             </ul>
                         {% endifequal %}

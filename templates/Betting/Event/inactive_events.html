@@ -8,7 +8,7 @@
                 {% if event.active == var_active or var_active == -1 %}
 				<div class="events" style="background-color:#f2d8cc;">
 					<div class="row">
-                        <a href="/event/{{event.id}}"><h2 style="position:relative;text-align:center;background-color:#c7e3d0;font-size:31px">{{event.description}}</h2></a>
+                        <a href="/inactive_event/{{event.id}}"><h2 style="position:relative;text-align:center;background-color:#c7e3d0;font-size:31px">{{event.description}}</h2></a>
 						<!--<button type="button" class="btn btn-primary" style="float:right;">Add Group</button>-->
 						</h2>
 						{% for group in group_list %}
@@ -16,12 +16,11 @@
 							<div class="col" style="margin:auto;background-color:#e7e6ce;text-align:center;" >
 								<ul style="list-style-type:none;">
 									<p style="position:relative;font-size:25px"><strong>{{group.group_name}}</strong></p>
-								{% for person in group.member.all %}
-									<li style="margin:1%;">{{person.username}}</li>
-								{%endfor%}
-								<!--<li style="margin:2%;"><button type="button" class="btn btn-success" style="float:center;">Join {{group.group_name}}</button></li>-->
-								<li style="font-size:20px;"><strong><u>Betting</u></strong></li>
-								<li>{{group.group_bet_amount}} {{group.group_bet}}</li>
+								    {% for person in group.member.all %}
+									    <li style="margin:1%;">{{person.username}}</li>
+								    {%endfor%}
+								    <li style="font-size:20px;"><strong><u>Betting</u></strong></li>
+								    <li>{{group.group_bet_amount}} {{group.group_bet}}</li>
 								</ul>
 							</div>
 							{%endifequal%}

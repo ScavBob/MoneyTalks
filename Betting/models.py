@@ -52,6 +52,17 @@ class Group(models.Model):
     group_bet_amount = models.PositiveSmallIntegerField(validators=[MaxValueValidator(1000000), validate_nonzero])
     group_bet = models.CharField(max_length=100)
 
+    @property
+    def calculate_winnings(self) -> {(str, int)}:
+        groups = Group.objects.filter(event_id=self.event_id).exclude(pk=self.pk)
+        bets = {}
+        for group in groups:
+            if group.group_bet in bets:
+                bets[group.group_bet] += group.group_bet_amount
+            else:
+                bets[group.group_bet] = group.group_bet_amount
+        return bets
+
     def __str__(self):
         return self.group_name
 
@@ -118,7 +129,6 @@ class Event(models.Model):
 
     def __str__(self):
         return str(self.id) + " " + self.description
-
 
 # class Tournament(models.Model):
 # description = models.CharField(max_length=150)

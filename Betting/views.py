@@ -45,10 +45,12 @@ class InactiveEventView(ExtendedTemplateView):
     def get(self, request):
         event_list = Event.objects.all()
         group_list = Group.objects.all()
+        bet_list = Bet.objects.all()
         form = EventCreationForm()
         context = {
             'event_list': event_list,
             'group_list': group_list,
+            'bet_list': bet_list,
             'form': form,
             'var_active': False,
             'navbar': self.navbar,
@@ -65,7 +67,7 @@ class CreateEvent(LoginRequiredMixin, ExtendedTemplateView):
             event = form.save(commit=False)
             event.creator = request.user
             event.save()
-            return HttpResponseRedirect('/event/' + str(event.id))
+            return HttpResponseRedirect('/active_event/' + str(event.id))
         else:
             return render(request, "Core/error.html", {'form': form})
 
@@ -90,7 +92,7 @@ class CreateGroup(LoginRequiredMixin, ExtendedTemplateView):
             group.refresh_from_db()
             group.member.add(request.user)
             group.save()
-            return HttpResponseRedirect("/event/" + str(event_id))
+            return HttpResponseRedirect("/active_event/" + str(event_id))
         else:
             return render(request, "Core/error.html", {'form': form})
 
@@ -145,11 +147,53 @@ class SearchEventView(ExtendedTemplateView):
             return render(request, self.template_name, context)
 
 
-class EventDetailsView(ExtendedTemplateView):
-    template_name = "Betting/Event/details.html"
+class ActiveEventDetailsView(LoginRequiredMixin, ExtendedTemplateView):
+    template_name = "Betting/Event/active_event_details.html"
 
     def get(self, request, id):
         event = Event.objects.get(pk=id)
+        if not event.active:
+            HttpResponseRedirect("/inactive_event/" + str(id))
+        group_list = Group.objects.filter(event_id=id)
+        group_adding_form = GroupCreationForm()
+        betting_on_group_form = BetCreationForm()
+        bets = Bet.objects.filter(better=request.user)
+        event_bets = Bet.objects.filter(event=id)
+        participated = False
+        if request.user.id is None:
+            participated = True
+
+        for bet in bets:
+            if bet.event == event:
+                participated = True
+                break
+
+        if not participated:
+            for group in group_list:
+                if request.user in group.member.all():
+                    participated = True
+                    break
+
+        context = {
+            'event': event,
+            'group_list': group_list,
+            'bet_list': event_bets,
+            'group_adding_form': group_adding_form,
+            'betting_on_group_form': betting_on_group_form,
+            'participated': participated,
+            'navbar': self.navbar,
+            'search': self.search,
+        }
+        return render(request, self.template_name, context)
+
+
+class InactiveEventDetailsView(LoginRequiredMixin, ExtendedTemplateView):
+    template_name = "Betting/Event/inactive_event_details.html"
+
+    def get(self, request, id):
+        event = Event.objects.get(pk=id)
+        if event.active:
+            HttpResponseRedirect("/active_event/" + str(id))
         group_list = Group.objects.filter(event_id=id)
         group_adding_form = GroupCreationForm()
         betting_on_group_form = BetCreationForm()
@@ -188,7 +232,7 @@ class JoinGroup(ExtendedTemplateView):
     def post(self, request, group_id):
         group = Group.objects.get(pk=group_id)
         group.member.add(request.user)
-        return HttpResponseRedirect("/event/" + str(group.event_id.id))
+        return HttpResponseRedirect("/active_event/" + str(group.event_id.id))
 
 
 class LeaveGroup(TemplateView):
@@ -199,7 +243,7 @@ class LeaveGroup(TemplateView):
             group.delete()
         else:
             group.member.remove(request.user)
-        return HttpResponseRedirect("/event/" + str(group.event_id.id))
+        return HttpResponseRedirect("/active_event/" + str(group.event_id.id))
 
 
 class UserBetsView(ExtendedTemplateView):
@@ -251,7 +295,7 @@ class CreateBet(LoginRequiredMixin, ExtendedTemplateView):
             bet.betting_on = group
             bet.better = request.user
             bet.save()
-            return HttpResponseRedirect('/event/' + str(group.event_id.id))
+            return HttpResponseRedirect('/active_event/' + str(group.event_id.id))
 
 
 class RemoveBet(LoginRequiredMixin, ExtendedTemplateView):
@@ -260,4 +304,4 @@ class RemoveBet(LoginRequiredMixin, ExtendedTemplateView):
         bet = Bet.objects.get(pk=bet_id)
         event_id = bet.event_id
         bet.delete()
-        return HttpResponseRedirect('/event/' + str(event_id))
+        return HttpResponseRedirect('/active_event/' + str(event_id))
