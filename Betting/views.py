@@ -22,13 +22,17 @@ class ActiveEventView(ExtendedTemplateView):
     template_name = "Betting/Event/active_events.html"
 
     def get(self, request):
-        event_list = reversed(Event.objects.all().order_by('-event_date', '-event_time'))
-        group_list = Group.objects.filter()
-        event_bets = Bet.objects.all()
+        event_list = Event.objects.all().order_by('event_date', 'event_time')
+        events = []
+        for event in event_list:
+            if event.active:
+                events.append(event)
+        group_list = Group.objects.filter(event_id__in=events)
+        event_bets = Bet.objects.filter(event__in=events)
         form = EventCreationForm()
 
         context = {
-            'event_list': event_list,
+            'event_list': events,
             'group_list': group_list,
             'bet_list': event_bets,
             'form': form,
@@ -43,12 +47,16 @@ class InactiveEventView(ExtendedTemplateView):
     template_name = "Betting/Event/inactive_events.html"
 
     def get(self, request):
-        event_list = Event.objects.all()
-        group_list = Group.objects.all()
-        bet_list = Bet.objects.all()
+        event_list = Event.objects.all().order_by('event_date', 'event_time')
+        events = []
+        for event in event_list:
+            if not event.active:
+                events.append(event)
+        group_list = Group.objects.filter(event_id__in=events)
+        bet_list = Bet.objects.filter(event__in=events)
         form = EventCreationForm()
         context = {
-            'event_list': event_list,
+            'event_list': events,
             'group_list': group_list,
             'bet_list': bet_list,
             'form': form,

@@ -1,36 +1,65 @@
-{% extends "base.html" %}
-    {% block head %}
-    {% endblock %}
-    {% include "Core/navbar.html" %}
-    {% block content %}
-		{% if event_list %}
-			{% for event in event_list %}
-                {% if event.active == var_active or var_active == -1 %}
-				<div class="events" style="background-color:#f2d8cc;">
-					<div class="row">
-                        <a href="/inactive_event/{{event.id}}"><h2 style="position:relative;text-align:center;background-color:#c7e3d0;font-size:31px">{{event.description}}</h2></a>
-						<!--<button type="button" class="btn btn-primary" style="float:right;">Add Group</button>-->
-						</h2>
-						{% for group in group_list %}
-							{% ifequal group.event_id event %}
-							<div class="col" style="margin:auto;background-color:#e7e6ce;text-align:center;" >
-								<ul style="list-style-type:none;">
-									<p style="position:relative;font-size:25px"><strong>{{group.group_name}}</strong></p>
-								    {% for person in group.member.all %}
-									    <li style="margin:1%;">{{person.username}}</li>
-								    {%endfor%}
-								    <li style="font-size:20px;"><strong><u>Betting</u></strong></li>
-								    <li>{{group.group_bet_amount}} {{group.group_bet}}</li>
-								</ul>
-							</div>
-							{%endifequal%}
-						{%endfor%}
-					</div>
-				</div>
-				<p><br></p>
+{% load static %}
+{% include "base.html" %}
+{% block content %}
+    <section class="property-grid grid">
+        <div class="container">
+            <div class="row">
+                {% if event_list %}
+                    {% for event in event_list %}
+                        <div class="col-md-4">
+                            <div class="card-box-a card-shadow">
+                                <div class="img-box-a">
+                                    <img src="{% static "img/property-1.jpg" %}" alt="" class="img-a img-fluid">
+                                </div>
+                                <div class="card-overlay">
+                                    <div class="card-overlay-a-content">
+                                        <div class="card-header-a">
+                                            <h2 class="card-title-a">
+                                                <a href="/inactive_event/{{ event.id }}">{{ event.description }}</a>
+                                            </h2>
+                                        </div>
+                                        <div class="card-body-a">
+                                          <div class="price-box d-flex">
+                                            <span class="price-a">
+                                                {% if event.winner %}
+                                                    {{ event.winner }}
+                                                {% elif not event.winner and event.tie%}
+                                                    TIED
+                                                {% endif %}
+                                            </span>
+                                          </div>
+                                          <a href="/inactive_event/{{ event.id }}" class="link-a">Click here to see details
+                                            <span class="ion-ios-arrow-forward"></span>
+                                          </a>
+                                        </div>
+                                        <div class="card-footer-a">
+                                            <ul class="card-info d-flex justify-content-around">
+                                                {% for group in group_list %}
+                                                    {% ifequal group.event_id event%}
+                                                        <li>
+
+                                                            <h4 class="card-info-title"  style="font-size:.9rem; color: {% if event.winner == group %} GOLD; {% elif event.tie %} GRAY; {% else %} RED;{% endif %}" >{{ group.group_name }}</h4>
+                                                                {% for member in group.member.all %}
+                                                                <ul>
+                                                                    <li>
+                                                                        <span style="color: {% if event.winner == group %} GOLD {% elif event.tie %} GRAY {% else %} RED{% endif %};">{{ member }}</span>
+                                                                    </li>
+                                                                </ul>
+                                                                {% endfor %}
+                                                        </li>
+                                                    {% endifequal %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No events found.</p>
                 {% endif %}
-			{%endfor%}
-		{% else %}
-			<p style="text-align:center"><strong>No previous events are available.</strong></p>
-		{% endif %}
-    {% endblock %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

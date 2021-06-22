@@ -1,15 +1,28 @@
 <head>
+{% load static %}
     <meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous"/>
+
+    <!-- Google Fonts -->
+    <link href=https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet"/>
+
+    <!-- Bootstrap CSS File -->
+
+    <!-- Libraries CSS Files -->
+    <link href="{% static "lib/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet"/>
+    <link href="{% static "lib/animate/animate.min.css" %}" rel="stylesheet"/>
+    <link href="{% static "lib/ionicons/css/ionicons.min.css" %}" rel="stylesheet"/>
+    <link href="{% static "lib/owlcarousel/assets/owl.carousel.min.css" %}" rel="stylesheet"/>
+
+    <!-- Main Stylesheet File -->
+    <link href="{% static "css/style.css" %}" rel="stylesheet"/>
     <script
         src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
         crossorigin="anonymous">
     </script>
     {% block head %}{% endblock head %}
-    <title></title>
-
 </head>
 <body>
     {% if navbar %}
@@ -20,4 +33,6 @@
     {% endblock content %}
 
 </body>
+
+
 </html>
