@@ -19,6 +19,7 @@ from django.urls import path, include
 
 import Betting.views
 import Core.views
+from MoneyTalks import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -9,7 +10,7 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from django.db.models.functions import Now
 from django.utils.translation import gettext_lazy as _
-from MoneyTalks.settings import TIME_ZONE
+from MoneyTalks.settings import TIME_ZONE, MEDIA_PATH, STATIC_PATH
 
 
 def validate_nonzero(value):
@@ -22,6 +23,14 @@ def validate_nonzero(value):
 
 def invalidationTime(time):
     return timezone.now() + timedelta(minutes=15)
+
+
+def image_directory(profile, filename):
+    return STATIC_PATH + "/img/" + str(profile.user.id) + "/pp.png"
+
+
+def event_image_directory(event_type, filename):
+    return STATIC_PATH + "/img/event/" + str(event_type) + "/pp.png"
 
 
 # Create your models here.
@@ -79,8 +88,7 @@ class Profile(models.Model):
     # picture
     name = models.CharField(max_length=100)
     surname = models.CharField(max_length=100)
-
-    # picture = models.ImageField()
+    picture = models.ImageField(upload_to=image_directory, default=MEDIA_PATH + "\default.png")
 
     @property
     def win_rate(self):
@@ -99,12 +107,21 @@ class Profile(models.Model):
         return self.user.username
 
 
+class EventType(models.Model):
+    type = models.CharField(max_length=100)
+    image = models.ImageField(upload_to=event_image_directory,
+                              default=MEDIA_PATH + "\default.png")
+
+    def __str__(self):
+        return self.type
+
+
 class Event(models.Model):
     description = models.CharField(max_length=150, null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     event_date = models.DateField()
     event_time = models.TimeField()
-    event_type = models.CharField(max_length=100)
+    event_type = models.ForeignKey("EventType", on_delete=models.CASCADE)
     tie = models.BooleanField(null=True, blank=True)
     winner = models.OneToOneField("Group", on_delete=models.CASCADE, null=True, blank=True)
 

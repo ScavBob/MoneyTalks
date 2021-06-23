@@ -9,7 +9,7 @@
                         <div class="col-md-4">
                             <div class="card-box-a card-shadow">
                                 <div class="img-box-a">
-                                    <img src="{% static "img/property-1.jpg" %}" alt="" class="img-a img-fluid">
+                                    <img src="{% static STATIC_URL %} {{ event.event_type.image }}" alt="" height="565" width="425">
                                 </div>
                                 <div class="card-overlay">
                                     <div class="card-overlay-a-content">
@@ -31,11 +31,11 @@
                                                 {% for group in group_list %}
                                                     {% ifequal group.event_id event%}
                                                         <li>
-                                                            <h4 class="card-info-title">{{ group.group_name }}</h4>
+                                                            <h4 class="card-info-title" style="font-size: .9rem">{{ group.group_name }}</h4>
                                                                 {% for member in group.member.all %}
                                                                 <ul>
                                                                     <li>
-                                                                        <span>{{ member }}</span>
+                                                                        <span style="font-size: .8rem">{{ member }}</span>
                                                                     </li>
                                                                 </ul>
                                                                 {% endfor %}

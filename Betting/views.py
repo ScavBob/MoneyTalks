@@ -118,7 +118,7 @@ class SearchEventView(ExtendedTemplateView):
             people = User.objects.filter(username__icontains=search_string)
             people_groups = Group.objects.filter(member__in=people)
             desc_filter = Event.objects.filter(description__icontains=search_string)
-            type_filter = Event.objects.filter(event_type__icontains=search_string)
+            type_filter = Event.objects.filter(event_type__type__icontains=search_string)
             group_list = Group.objects.filter()
             event_bets = Bet.objects.all()
             all_events = []
