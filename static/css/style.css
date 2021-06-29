@@ -1802,7 +1802,7 @@ footer .credits {
   }
 
   .title-c {
-    font-size: 1.8rem;
+    font-size: 1rem;
   }
 
   .card-box-d .card-overlay-hover {
@@ -1839,13 +1839,13 @@ footer .credits {
 
 @media (min-width: 768px) and (min-width: 768px) {
   .card-box-a:hover .card-overlay-a-content {
-    bottom: 25%;
+    bottom: 33%;
   }
 }
 
 @media (min-width: 768px) and (min-width: 992px) {
   .card-box-a:hover .card-overlay-a-content {
-    bottom: 25%;
+    bottom: 33%;
   }
 }
 

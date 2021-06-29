@@ -41,5 +41,6 @@ urlpatterns = [
     path('events/', Betting.views.UserEventsView.as_view(), name="user_events"),
     path('addBet/<int:group_id>', Betting.views.CreateBet.as_view(), name="create_bet"),
     path('removeBet/<int:bet_id>', Betting.views.RemoveBet.as_view(), name="remove_bet"),
-
+    path('event/pickWinner/<int:group_id>', Betting.views.PickWinner.as_view(), name="pick_winner"),
+    path('leaderboards/', Betting.views.Leaderboards.as_view(), name="leaderboards"),
 ]

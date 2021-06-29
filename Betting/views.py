@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView
@@ -10,7 +11,7 @@ from Core.forms import EventCreationForm, GroupCreationForm, BetCreationForm, Se
 
 # Create your views here.
 def eventSort(event):
-    return datetime.combine(event.event_date, event.event_time)
+    return event.finalized
 
 
 class ExtendedTemplateView(TemplateView):
@@ -52,6 +53,8 @@ class InactiveEventView(ExtendedTemplateView):
         for event in event_list:
             if not event.active:
                 events.append(event)
+
+        events.sort(key=eventSort)
         group_list = Group.objects.filter(event_id__in=events)
         bet_list = Bet.objects.filter(event__in=events)
         form = EventCreationForm()
@@ -143,6 +146,7 @@ class SearchEventView(ExtendedTemplateView):
             for group in people_groups:
                 if group.event_id not in all_events:
                     all_events.append(group.event_id)
+
             all_events.sort(reverse=True, key=eventSort)
             context = {
                 'event_list': all_events,
@@ -160,27 +164,20 @@ class ActiveEventDetailsView(LoginRequiredMixin, ExtendedTemplateView):
 
     def get(self, request, id):
         event = Event.objects.get(pk=id)
+
         if not event.active:
             HttpResponseRedirect("/inactive_event/" + str(id))
+
         group_list = Group.objects.filter(event_id=id)
         group_adding_form = GroupCreationForm()
         betting_on_group_form = BetCreationForm()
-        bets = Bet.objects.filter(better=request.user)
+        bets = Bet.objects.filter(better=request.user, event=event)
+        groups = Group.objects.filter(event_id=event, member__in=[request.user])
         event_bets = Bet.objects.filter(event=id)
         participated = False
-        if request.user.id is None:
+
+        if len(bets) != 0 or len(groups) != 0 or request.user is None:
             participated = True
-
-        for bet in bets:
-            if bet.event == event:
-                participated = True
-                break
-
-        if not participated:
-            for group in group_list:
-                if request.user in group.member.all():
-                    participated = True
-                    break
 
         context = {
             'event': event,
@@ -200,27 +197,20 @@ class InactiveEventDetailsView(LoginRequiredMixin, ExtendedTemplateView):
 
     def get(self, request, id):
         event = Event.objects.get(pk=id)
+
         if event.active:
             HttpResponseRedirect("/active_event/" + str(id))
-        group_list = Group.objects.filter(event_id=id)
+
+        group_list = Group.objects.filter(event_id=event)
         group_adding_form = GroupCreationForm()
         betting_on_group_form = BetCreationForm()
-        bets = Bet.objects.filter(better=request.user)
+        bets = Bet.objects.filter(better=request.user, event=event)
+        groups = Group.objects.filter(event_id=event, member__in=[request.user])
         event_bets = Bet.objects.filter(event=id)
         participated = False
-        if request.user.id is None:
+
+        if bets is not None or groups is not None or request.user is None:
             participated = True
-
-        for bet in bets:
-            if bet.event == event:
-                participated = True
-                break
-
-        if not participated:
-            for group in group_list:
-                if request.user in group.member.all():
-                    participated = True
-                    break
 
         context = {
             'event': event,
@@ -262,7 +252,7 @@ class UserBetsView(ExtendedTemplateView):
         events = []
         for bet in bets:
             events.append(bet.event)
-        events.sort(reverse=True, key=eventSort)
+        events.sort(key=eventSort)
         context = {
             'event_list': events,
             'group_list': Group.objects.all(),
@@ -281,7 +271,7 @@ class UserEventsView(LoginRequiredMixin, ExtendedTemplateView):
         events = []
         for group in groups:
             events.append(group.event_id)
-        events.sort(reverse=True, key=eventSort)
+        events.sort(key=eventSort)
         context = {
             'event_list': events,
             'group_list': Group.objects.all(),
@@ -313,3 +303,35 @@ class RemoveBet(LoginRequiredMixin, ExtendedTemplateView):
         event_id = bet.event_id
         bet.delete()
         return HttpResponseRedirect('/active_event/' + str(event_id))
+
+
+class PickWinner(ExtendedTemplateView):
+
+    def post(self, request, group_id):
+        group = Group.objects.get(pk=group_id)
+        event = Event.objects.get(pk=group.event_id.id)
+        event.winner = group
+        event.save()
+        return HttpResponseRedirect('/inactive_event/' + str(event.id))
+
+
+class Leaderboards(ExtendedTemplateView):
+    template_name = "Betting/leaderboards.html"
+
+    def get(self, request):
+        users = User.objects.all()
+        leaderboard = {}
+
+        i = 1
+        for user in users:
+            groups = Group.objects.filter(event_id__winner__member__in=[user], member__in=[user])
+            if len(groups) != 0:
+                leaderboard[user] = (i, len(groups))
+                i += 1
+
+        context = {
+            'leaderboard': leaderboard,
+            'navbar': self.navbar,
+            'search': self.search,
+        }
+        return render(request, self.template_name, context)

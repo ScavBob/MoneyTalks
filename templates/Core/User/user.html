@@ -1,4 +1,9 @@
 {% extends "base.html" %}
     {% block content %}
         <p>{{ profile }}</p>
+        {% if fig %}
+            <div style="width:400;height:400">
+                {{ fig|safe }}
+            </div>
+        {% endif %}
     {% endblock %}

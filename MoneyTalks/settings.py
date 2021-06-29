@@ -24,7 +24,15 @@ SECRET_KEY = 'django-insecure-p9_=t2#8rimik0yn*kcdqcuw6*v8jz++mw$57@ijdbr)9s2rfd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]']
+
+# You will need to add email information as specified here: https://docs.djangoproject.com/en/3.1/topics/email/
+# This can include:
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '465'
+EMAIL_HOST_USER = 'notification.moneytalks@gmail.com'
+EMAIL_HOST_PASSWORD = 'Cancan99'
+# and the EMAIL_USE_TLS and EMAIL_USE_SSL settings control whether a secure connection is used.
 
 # Application definition
 
@@ -37,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_notification_system',
 ]
 
 MIDDLEWARE = [
@@ -67,6 +76,27 @@ TEMPLATES = [
         },
     },
 ]
+
+NOTIFICATION_SYSTEM_CREATORS = [
+]
+
+# A list of locations for the system to search for notification handlers.
+# You can just create the list and leave it empty if you want to just put this in place.
+NOTIFICATION_SYSTEM_HANDLERS = [
+]
+
+NOTIFICATION_SYSTEM_TARGETS = {
+    # Twilio Required settings, if you're not planning on using Twilio these can be set
+    # to empty strings
+    "twilio_sms": {
+        'account_sid': '',
+        'auth_token': '',
+        'sender': ''  # This is the phone number associated with the Twilio account
+    },
+    "email": {
+        'from_email': ''  # Sending email address
+    }
+}
 
 WSGI_APPLICATION = 'MoneyTalks.wsgi.application'
 
@@ -123,7 +153,6 @@ MEDIA_URL = '/media/'
 
 STATIC_PATH = os.path.join(BASE_DIR, 'static')
 MEDIA_PATH = os.path.join(BASE_DIR, 'static', 'img')
-
 
 STATICFILES_DIRS = (
     STATIC_PATH,

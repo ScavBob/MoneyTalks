@@ -6,12 +6,9 @@ from django.forms import ModelForm, DateTimeField, DateTimeInput
 
 
 class SignUpForm(UserCreationForm):
-    name = forms.CharField(max_length=100, required=True)
-    surname = forms.CharField(max_length=100, required=True)
-
     class Meta:
         model = User
-        fields = ('username', 'name', 'surname', 'password1', 'password2',)
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2',)
 
 
 class DateInput(forms.DateInput):

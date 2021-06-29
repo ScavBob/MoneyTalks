@@ -9,7 +9,7 @@
                         <div class="col-md-4">
                             <div class="card-box-a card-shadow">
                                 <div class="img-box-a">
-                                    <img src="{% static STATIC_URL %} {{ event.event_type.image }}" alt="" height="565" width="425">
+                                    <img src="{% static STATIC_URL %} {{ event.event_type.image }}" alt="" height="565" width="425" class="img-a">
                                 </div>
                                 <div class="card-overlay">
                                     <div class="card-overlay-a-content">
@@ -33,7 +33,7 @@
                                                         <li>
                                                             <h4 class="card-info-title" style="font-size: .9rem">{{ group.group_name }}</h4>
                                                                 {% for member in group.member.all %}
-                                                                <ul>
+                                                                <ul class="list-a no-margin">
                                                                     <li>
                                                                         <span style="font-size: .8rem">{{ member }}</span>
                                                                     </li>

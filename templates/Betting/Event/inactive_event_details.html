@@ -1,38 +1,82 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-    <h1 style="text-align: center;">{{ event.description }}</h1>
-    <h4 style="text-align: center;"><strong>{{ event.event_type }}</strong></h4>
-    <h5 style="text-align: center;"><strong>{{event.event_date}} {{ event.event_time }}</strong></h5>
-    {% if group_list %}
-        <p><br></p>
+    <div class="container">
         <div class="row">
-		    {% for group in group_list %}
-		    	<div class="col" style="margin:auto;background-color:#e7e6ce;text-align:center;" >
-		    		<ul style="list-style-type:none;">
-		    			<p style="position:relative;font-size:25px"><strong>{{group.group_name}}</strong></p>
-		    		{% for person in group.member.all %}
-		    			<li style="margin:1%;">{{person.username}}</li>
-		    		{%endfor%}
-		    		{% ifequal event.winner group%}
-                        <li style="font-size:20px;"><strong><u>WON</u></strong></li>
-                        {% for key,value in group.calculate_winnings.items %}
-                            <li>{{ value }}x {{ key }}</li>
-                        {% endfor %}
-                    {% else %}
-                        <li style="font-size:20px;"><strong><u>LOST</u></strong></li>
-                        <li>{{ group.group_bet_amount }}x {{ group.group_bet }}</li>
-		    		{% endifequal %}
-                    </ul>
-                    {% for bet in bet_list %}
+            <div class="col-md-12 col-lg-8">
+                <div class="title-single-box">
+                    <h1 class="title-single">{{ event.description }}</h1>
+                    <span class="color-text-a">{{ event.event_type }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="property-single nav-arrow-b">
+    <div class="container">
+        <div class="row">
+          <div class="col">
+            <div class="row justify-content-between">
+              {% for group in group_list %}
+                <div class="col">
+                <div class="property-summary">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="title-box-d section-t4">
+                        <h3 class="title-d" {% ifequal group event.winner %}style="color: darkgoldenrod" {% else %} style="color: red" {% endifequal %}>{{ group.group_name }}</h3>
+                        {% ifequal group event.winner %}
+                            <h5>WON</h5>
+                            {% for key,value in group.calculate_winnings.items %}
+                              <h5>{{ value }}x {{ key }}</h5>
+                                {% endfor %}
+                      {% else %}
+                            <h5>LOST</h5>
+                            <h5>{{ group.group_bet_amount }}x {{ group.group_bet }}</h5>
+                      {% endifequal %}
+                      </div>
+                    </div>
+                    {% if not event.finalized and user == event.creator%}
+                            <form action="/event/pickWinner/{{ group.id }}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-primary">WINNER</button>
+                            </form>
+                    {% endif %}
+                  </div>
+                  <div class="box-comments">
+                    <ul class="list list-comments">
+                      <li>
+                        <h3>Members</h3>
+                      </li>
+                        {% for member in group.member.all %}
+                            <li>
+                                <div class="comment-avatar">
+                                    <img src="{% static STATIC_URL %} {{ member.profile.picture }}" height="50" width="50">
+                                </div>
+                                <div class="comment-details">
+                                    <h4 class="comment-author" {% ifequal group event.winner %}style="color: darkgoldenrod" {% else %} style="color: red" {% endifequal %}>{{ member.username }}</h4>
+                                </div>
+                            </li>
+                  {% endfor %}
+                  {% for bet in bet_list %}
                         {% ifequal bet.betting_on group %}
-                            <ul style="list-style-type: none">
-                                <li><strong>{{ bet.better.username }}</strong></li>
-                                <li>{{ bet.amount }} {{ bet.item }}</li>
+                            <h4>Betters</h4>
+                                <li>
+                                    <div class="comment-avatar">
+                                        <img src="{% static STATIC_URL %} {{ bet.better.profile.picture }}" height="50" width="50">
+                                    </div>
+                                <div class="comment-details">
+                                    <h4 class="comment-author" {% ifequal group event.winner %}style="color: darkgoldenrod" {% else %} style="color: red" {% endifequal %}>{{ bet.better.username }}</h4>
+                                    <p class="comment-description">{{ bet.amount }}x {{ bet.item }}</p>
+                                </div>
+                                </li>
                             </ul>
                         {% endifequal %}
                     {% endfor %}
-		    	</div>
-		    {%endfor%}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+            </div>
+          </div>
         </div>
-    {% endif %}
+    </div>
 {% endblock %}

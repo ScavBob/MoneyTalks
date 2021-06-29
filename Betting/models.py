@@ -30,7 +30,7 @@ def image_directory(profile, filename):
 
 
 def event_image_directory(event_type, filename):
-    return STATIC_PATH + "/img/event/" + str(event_type) + "/pp.png"
+    return STATIC_PATH + "/img/event/" + str(event_type.id) + "/pp.png"
 
 
 # Create your models here.
@@ -86,8 +86,7 @@ def update_profile(sender, instance, created, **kwargs):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # picture
-    name = models.CharField(max_length=100)
-    surname = models.CharField(max_length=100)
+    winner_speech = models.CharField(max_length=500, null=True, blank=True)
     picture = models.ImageField(upload_to=image_directory, default=MEDIA_PATH + "\default.png")
 
     @property
@@ -95,13 +94,17 @@ class Profile(models.Model):
         groups = Group.objects.filter(member__in=[self.user.id])
         wins = 0
         lose = 0
+        tie = 0
         for group in groups:
-            if not group.event_id.tie:
-                if group.event_id.winner == group:
-                    wins += 1
+            if group.event_id.finalized:
+                if not group.event_id.tie:
+                    if group.event_id.winner == group:
+                        wins += 1
+                    else:
+                        lose += 1
                 else:
-                    lose += 1
-        return wins / len(groups)
+                    tie += 1
+        return [wins, lose, tie]
 
     def __str__(self):
         return self.user.username

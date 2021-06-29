@@ -3,6 +3,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from django_notification_system.models import NotificationTarget, TargetUserRecord
+import plotly.graph_objs as go
 
 from Core.forms import SignUpForm, SearchEventForm
 
@@ -14,10 +16,15 @@ class SignUpView(TemplateView):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            user.refresh_from_db()
-            user.profile.name = form.cleaned_data.get("name")
-            user.profile.surname = form.cleaned_data.get("surname")
             user.save()
+            target = NotificationTarget.objects.get("Twilio")
+            target_user_record = TargetUserRecord.objects.create(
+                user_id=user,
+                target_id=target,
+                target_user_id=user.email,
+                description=f"{user.first_name} {user.last_name}'s Notification",
+                active=True
+            )
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password1")
             user = authenticate(username=username, password=password)
@@ -45,9 +52,14 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
     def get(self, request):
         profile = request.user.profile
         search = SearchEventForm()
+        trace = go.Pie(labels=['Win', 'Lose', 'Tie'], values=profile.win_rate)
+        data = [trace]
+        fig = go.Figure(data=data)
+        fig = fig.to_html()
         context = {
             'profile': profile,
             'navbar': True,
             'search': search,
+            'fig': fig,
         }
         return render(request, self.template_name, context)
