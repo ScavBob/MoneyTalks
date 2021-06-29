@@ -34,7 +34,7 @@
                       {% endifequal %}
                       </div>
                     </div>
-                    {% if not event.finalized and user == event.creator%}
+                    {% if not event.finalized and user == event.creator %}
                             <form action="/event/pickWinner/{{ group.id }}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-outline-primary">WINNER</button>
@@ -64,8 +64,11 @@
                                         <img src="{% static STATIC_URL %} {{ bet.better.profile.picture }}" height="50" width="50">
                                     </div>
                                 <div class="comment-details">
-                                    <h4 class="comment-author" {% ifequal group event.winner %}style="color: darkgoldenrod" {% else %} style="color: red" {% endifequal %}>{{ bet.better.username }}</h4>
-                                    <p class="comment-description">{{ bet.amount }}x {{ bet.item }}</p>
+                            {% ifequal group event.winner %}
+                                    <h4 class="comment-author" style="color: darkgoldenrod" >{{ bet.better.username }}</h4>
+                                    <p class="comment-description">{{ bet.winnings.1 }}x {{ bet.winnings.0 }}</p>
+                                {% else %} <h4 class="comment-author" style="color: red" >{{ bet.better.username }}</h4>
+                                    <p class="comment-description">{{ bet.amount }}x {{ bet.item }}</p> {% endifequal %}
                                 </div>
                                 </li>
                             </ul>
@@ -79,4 +82,5 @@
           </div>
         </div>
     </div>
+    </section>
 {% endblock %}
