@@ -1,12 +1,14 @@
-from datetime import datetime
-
+import sms
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView
+
+from Core.forms import EventCreationForm, GroupCreationForm, BetCreationForm, SearchEventForm, EventTypeCreationForm
+from MoneyTalks.settings import MEDIA_PATH
 from .models import Bet, Group, User, Event
-from Core.forms import EventCreationForm, GroupCreationForm, BetCreationForm, SearchEventForm
+from sms import Message
 
 
 # Create your views here.
@@ -14,9 +16,21 @@ def eventSort(event):
     return event.finalized
 
 
+def handle_uploaded_file(f, type_id):
+    with open(MEDIA_PATH + "\event\\" + str(type_id) + "\pp.png", 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+
 class ExtendedTemplateView(TemplateView):
     search = SearchEventForm()
     navbar = True
+    event_type_form = EventTypeCreationForm()
+    context = {
+        'navbar': True,
+        'search': search,
+        'event_type_form': event_type_form,
+    }
 
 
 class ActiveEventView(ExtendedTemplateView):
@@ -40,6 +54,7 @@ class ActiveEventView(ExtendedTemplateView):
             'var_active': True,
             'navbar': self.navbar,
             'search': self.search,
+            'event_type_form': self.event_type_form,
         }
         return render(request, self.template_name, context)
 
@@ -66,6 +81,7 @@ class InactiveEventView(ExtendedTemplateView):
             'var_active': False,
             'navbar': self.navbar,
             'search': self.search,
+            'event_type_form': self.event_type_form,
         }
         return render(request, self.template_name, context)
 
@@ -78,6 +94,13 @@ class CreateEvent(LoginRequiredMixin, ExtendedTemplateView):
             event = form.save(commit=False)
             event.creator = request.user
             event.save()
+            message = Message(
+                "This is a reminder message!\n" +
+                "You have created an event due " + event.event_date.strftime("%A %B %Y") + " " + event.event_time.strftime("%H:%M %Z") + "!",
+                '+15096353379',
+                ['+905074255635'],
+                connection=sms.get_connection()
+            ).send()
             return HttpResponseRedirect('/active_event/' + str(event.id))
         else:
             return render(request, "Core/error.html", {'form': form})
@@ -87,7 +110,7 @@ class DeleteEvent(LoginRequiredMixin, ExtendedTemplateView):
 
     def post(self, request, event_id):
         event = Event.objects.get(pk=event_id)
-        if event.creator == request.user:
+        if event.creator == request.user and event.active:
             event.delete()
             return HttpResponseRedirect('/')
 
@@ -103,6 +126,11 @@ class CreateGroup(LoginRequiredMixin, ExtendedTemplateView):
             group.refresh_from_db()
             group.member.add(request.user)
             group.save()
+            groups = Group.objects.filter(event_id=event_id).exclude(pk=group.pk)
+            for g in groups:
+                if g.group_bet != group.group_bet:
+                    messages.info(request, 'Your bet is different from other groups! Please check other group\'s bets!')
+                    break
             return HttpResponseRedirect("/active_event/" + str(event_id))
         else:
             return render(request, "Core/error.html", {'form': form})
@@ -155,6 +183,7 @@ class SearchEventView(ExtendedTemplateView):
                 'var_active': -1,
                 'navbar': self.navbar,
                 'search': self.search,
+                'event_type_form': self.event_type_form,
             }
             return render(request, self.template_name, context)
 
@@ -188,6 +217,7 @@ class ActiveEventDetailsView(LoginRequiredMixin, ExtendedTemplateView):
             'participated': participated,
             'navbar': self.navbar,
             'search': self.search,
+            'event_type_form': self.event_type_form,
         }
         return render(request, self.template_name, context)
 
@@ -221,6 +251,7 @@ class InactiveEventDetailsView(LoginRequiredMixin, ExtendedTemplateView):
             'participated': participated,
             'navbar': self.navbar,
             'search': self.search,
+            'event_type_form': self.event_type_form,
         }
         return render(request, self.template_name, context)
 
@@ -259,6 +290,7 @@ class UserBetsView(ExtendedTemplateView):
             'var_active': -1,
             'navbar': self.navbar,
             'search': self.search,
+            'event_type_form': self.event_type_form,
         }
         return render(request, self.template_name, context)
 
@@ -278,6 +310,7 @@ class UserEventsView(LoginRequiredMixin, ExtendedTemplateView):
             'var_active': -1,
             'navbar': self.navbar,
             'search': self.search,
+            'event_type_form': self.event_type_form,
         }
         return render(request, self.template_name, context)
 
@@ -333,5 +366,16 @@ class Leaderboards(ExtendedTemplateView):
             'leaderboard': leaderboard,
             'navbar': self.navbar,
             'search': self.search,
+            'event_type_form': self.event_type_form,
         }
         return render(request, self.template_name, context)
+
+
+class CreateEventType(ExtendedTemplateView):
+
+    def post(self, request):
+        form = EventTypeCreationForm(request.POST)
+        if form.is_valid():
+            type = form.save()
+            handle_uploaded_file(request.POST['image'], type.id)
+            return HttpResponseRedirect("/")

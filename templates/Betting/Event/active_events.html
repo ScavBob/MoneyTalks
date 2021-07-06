@@ -1,4 +1,5 @@
 {% load static %}
+{% load bootstrap %}
 {% include "base.html" %}
 {% block content %}
     <section class="property-grid grid">
@@ -9,36 +10,39 @@
                         <div class="col-md-4">
                             <div class="card-box-a card-shadow">
                                 <div class="img-box-a">
-                                    <img src="{% static STATIC_URL %} {{ event.event_type.image }}" alt="" height="565" width="425" class="img-a">
+                                    <img src="{% static STATIC_URL %} {{ event.event_type.image }}" alt="" height="565"
+                                         width="425" class="img-a">
                                 </div>
                                 <div class="card-overlay">
                                     <div class="card-overlay-a-content">
                                         <div class="card-header-a">
                                             <h2 class="card-title-a">
-                                                <a href="/active_event/{{ event.id }}">{{ event.description }}</a>
+                                                <a href="{% url "active_event_details" event.id %}">{{ event.description }}</a>
                                             </h2>
                                         </div>
                                         <div class="card-body-a">
-                                          <div class="price-box d-flex">
-                                            <span class="price-a">{{ event.event_date }} | {{event.event_time}}</span>
-                                          </div>
-                                          <a href="/active_event/{{ event.id }}" class="link-a stretched-link">Click here to see details
-                                            <span class="ion-ios-arrow-forward"></span>
-                                          </a>
+                                            <div class="price-box d-flex">
+                                                <span class="price-a">{{ event.event_date }} | {{ event.event_time }}</span>
+                                            </div>
+                                            <a href="{% url "active_event_details" event.id %}"
+                                               class="link-a stretched-link">Click here to see details
+                                                <span class="ion-ios-arrow-forward"></span>
+                                            </a>
                                         </div>
                                         <div class="card-footer-a">
                                             <ul class="card-info d-flex justify-content-around">
                                                 {% for group in group_list %}
-                                                    {% ifequal group.event_id event%}
+                                                    {% ifequal group.event_id event %}
                                                         <li>
-                                                            <h4 class="card-info-title" style="font-size: .9rem">{{ group.group_name }}</h4>
-                                                                {% for member in group.member.all %}
+                                                            <h4 class="card-info-title"
+                                                                style="font-size: .9rem">{{ group.group_name }}</h4>
+                                                            {% for member in group.member.all %}
                                                                 <ul class="list-a no-margin">
                                                                     <li>
                                                                         <span style="font-size: .8rem">{{ member }}</span>
                                                                     </li>
                                                                 </ul>
-                                                                {% endfor %}
+                                                            {% endfor %}
                                                         </li>
                                                     {% endifequal %}
                                                 {% endfor %}
@@ -54,31 +58,66 @@
                 {% endif %}
             </div>
             {% if user.id and not var_active == -1 %}
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#event_adding_modal" style="width:100%">CREATE A NEW EVENT</button>
-                <div class="modal fade" id="event_adding_modal" tabindex="-1" aria-labelledby="event_adding_modal_label" aria-hidden="true">
+                <div class="btn-group" role="group" aria-label="Basic example" style="width: 100%">
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                            data-bs-target="#event_adding_modal" style="width: 75%; height: 55%">Create A New Event
+                    </button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#event_type_adding_modal" style="width: 25%">Add A New Event Type
+                    </button>
+                </div>
+                <div class="modal fade" id="event_adding_modal" tabindex="-1" aria-labelledby="event_adding_modal_label"
+                     aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">New Event</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title" id="exampleModalLabel">New Event Type</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="/addEvent/" method="post">
+                                <form action="{% url "create_event" %}" method="post">
                                     {% csrf_token %}
-                                    {{ form.as_p }}
+                                    {{ form | bootstrap }}
                                     <button type="submit" class="btn btn-primary">Add Event</button>
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nevermind</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nevermind
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                {% elif not var_active == -1  %}
-                    <form action="/login/" method="get">
-                        <button type="submit" class="btn btn-success" style="width:100%">LOGIN TO CREATE AN EVENT</button>
-                    </form>
+                <div class="modal fade" id="event_type_adding_modal" tabindex="-1"
+                     aria-labelledby="event_type_adding_modal_label"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">New Event</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{% url "create_event_type" %}" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    {{ event_type_form | bootstrap_horizontal }}
+                                    <p><br></p>
+                                    <button type="submit" class="btn btn-primary">Add Event</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nevermind
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% elif not var_active == -1 %}
+                <form action="{% url "login" %}" method="get">
+                    <button type="submit" class="btn btn-success" style="width:100%">LOGIN TO CREATE AN EVENT</button>
+                </form>
             {% endif %}
         </div>
     </section>

@@ -1,9 +1,23 @@
 {% extends "base.html" %}
-    {% block content %}
-	    <h2>Sign up</h2>
-	    <form action="/signup/" method="post">
-	    	{% csrf_token %}
-	    	{{ form.as_p }}
-	    	<button type="submit">Sign up</button>
-	    </form>
-    {% endblock %}
+{% load bootstrap %}
+{% load static %}
+{% block head %}
+    <link href="{% static "css/login.css" %}" rel="stylesheet">
+    <script src="{% static "js/script.js" %}"></script>
+{% endblock %}
+{% block content %}
+    <body id="particles-js"></body>
+    <div class="animated bounceInDown">
+        <div class="container" style="height: 1420px" >
+            <span class="error animated tada" id="msg"></span>
+            <form name="form1" class="box" action="{% url "signup" %}" method="post">
+                <h4 style="color:#FFFFFF;">Money<span style="color: #000000">Talks</span></h4>
+                <h5>Sign up with a new account.</h5>
+                {% csrf_token %}
+                {{ form | bootstrap}}
+                <input type="submit" value="Sign Up" class="btn1">
+            </form>
+            <a href="{% url "login" %}" class="dnthave">Already have an account? Login.</a>
+        </div>
+    </div>
+{% endblock %}

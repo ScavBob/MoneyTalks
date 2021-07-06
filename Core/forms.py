@@ -1,8 +1,8 @@
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
-from Betting.models import Event, Group, Bet
 from django import forms
-from django.forms import ModelForm, DateTimeField, DateTimeInput
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+from Betting.models import Event, Group, Bet, EventType
 
 
 class SignUpForm(UserCreationForm):
@@ -45,3 +45,24 @@ class SearchEventForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = ('description',)
+
+
+class UserProfileUpdate(forms.ModelForm):
+    picture = forms.ImageField(required=False)
+    winner_speech = forms.CharField(required=False)
+    username = forms.CharField(required=False)
+    first_name = forms.CharField(required=False)
+    last_name = forms.CharField(required=False)
+    email = forms.CharField(required=False)
+    password = forms.PasswordInput()
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'password')
+
+
+class EventTypeCreationForm(forms.ModelForm):
+
+    class Meta:
+        model = EventType
+        fields = ('type', 'image')

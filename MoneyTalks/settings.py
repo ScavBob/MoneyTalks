@@ -34,6 +34,10 @@ EMAIL_HOST_USER = 'notification.moneytalks@gmail.com'
 EMAIL_HOST_PASSWORD = 'Cancan99'
 # and the EMAIL_USE_TLS and EMAIL_USE_SSL settings control whether a secure connection is used.
 
+SMS_BACKEND = 'sms.backends.twilio.SmsBackend'
+TWILIO_ACCOUNT_SID = 'ACad5781cd9856250e6086127731abc195'
+TWILIO_AUTH_TOKEN = '65e65b08f76c00d94977b7a7936dd07b'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,7 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_notification_system',
+    'bootstrapform',
+
 ]
 
 MIDDLEWARE = [
@@ -76,27 +81,6 @@ TEMPLATES = [
         },
     },
 ]
-
-NOTIFICATION_SYSTEM_CREATORS = [
-]
-
-# A list of locations for the system to search for notification handlers.
-# You can just create the list and leave it empty if you want to just put this in place.
-NOTIFICATION_SYSTEM_HANDLERS = [
-]
-
-NOTIFICATION_SYSTEM_TARGETS = {
-    # Twilio Required settings, if you're not planning on using Twilio these can be set
-    # to empty strings
-    "twilio_sms": {
-        'account_sid': '',
-        'auth_token': '',
-        'sender': ''  # This is the phone number associated with the Twilio account
-    },
-    "email": {
-        'from_email': ''  # Sending email address
-    }
-}
 
 WSGI_APPLICATION = 'MoneyTalks.wsgi.application'
 

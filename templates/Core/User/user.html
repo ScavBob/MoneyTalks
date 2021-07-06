@@ -1,9 +1,100 @@
 {% extends "base.html" %}
-    {% block content %}
-        <p>{{ profile }}</p>
-        {% if fig %}
-            <div style="width:400;height:400">
-                {{ fig|safe }}
+{% load static %}
+{% load bootstrap %}
+{% block content %}
+    <div class="container" style="margin-bottom: 15px">
+        <div class="row">
+            <div class="col-md-1 col-lg-8">
+                <div class="title-single-box">
+                    <h1 class="title-single">{{ user.username }}</h1>
+                    <span class="color-text-a">{{ user.first_name }} {{ user.last_name }}</span>
+                </div>
             </div>
-        {% endif %}
-    {% endblock %}
+        </div>
+    </div>
+    <section class="agent-single">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="agent-avatar-box">
+                                <img src="{% static STATIC_URL %}{{ user.profile.picture }}" alt="" width="300" height="300" class="agent-avatar img-fluid">
+                            </div>
+                        </div>
+                        <div class="col-md-5 section-md-t3">
+                            <div class="agent-info-box">
+                                <div class="agent-content mb-3">
+                                    <form>
+                                        {% csrf_token %}
+                                        {{ profile_update | bootstrap_horizontal:'col-lg-4' }}
+                                    </form>
+                                    <div class="info-agents color-a">
+                                        <p>
+                                            <strong>Phone: </strong>
+                                            <span class="color-text-a"> +54 356 945234 </span>
+                                        </p>
+                                        <p>
+                                            <strong>Mobile: </strong>
+                                            <span class="color-text-a"> 999 123 456 789</span>
+                                        </p>
+                                        <p>
+                                            <strong>Email: </strong>
+                                            <span class="color-text-a"> agents@example.com</span>
+                                        </p>
+                                        <p>
+                                            <strong>skype: </strong>
+                                            <span class="color-text-a"> Margaret.Es</span>
+                                        </p>
+                                        <p>
+                                            <strong>Email: </strong>
+                                            <span class="color-text-a"> agents@example.com</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="socials-footer">
+                                    <ul class="list-inline">
+                                        <li class="list-inline-item">
+                                            <a href="#" class="link-one">
+                                                <i class="fa fa-facebook" aria-hidden="true"></i>
+                                            </a>
+                                        </li>
+                                        <li class="list-inline-item">
+                                            <a href="#" class="link-one">
+                                                <i class="fa fa-twitter" aria-hidden="true"></i>
+                                            </a>
+                                        </li>
+                                        <li class="list-inline-item">
+                                            <a href="#" class="link-one">
+                                                <i class="fa fa-instagram" aria-hidden="true"></i>
+                                            </a>
+                                        </li>
+                                        <li class="list-inline-item">
+                                            <a href="#" class="link-one">
+                                                <i class="fa fa-pinterest-p" aria-hidden="true"></i>
+                                            </a>
+                                        </li>
+                                        <li class="list-inline-item">
+                                            <a href="#" class="link-one">
+                                                <i class="fa fa-dribbble" aria-hidden="true"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md" style="float: top">
+                            <div class="agent-avatar-box">
+                                {% if fig %}
+                                    <div style="height: 400px; width: 400px">
+                                        {{ fig | safe }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

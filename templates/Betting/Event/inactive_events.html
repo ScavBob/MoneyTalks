@@ -9,43 +9,45 @@
                         <div class="col-md-4">
                             <div class="card-box-a card-shadow">
                                 <div class="img-box-a">
-                                    <img src="{% static STATIC_URL %} {{ event.event_type.image }}" alt="" height="565" width="425" class="img-a">
+                                    <img src="{% static STATIC_URL %} {{ event.event_type.image }}" alt="" height="565"
+                                         width="425" class="img-a">
                                 </div>
                                 <div class="card-overlay">
                                     <div class="card-overlay-a-content">
                                         <div class="card-header-a">
                                             <h2 class="card-title-a">
-                                                <a href="/inactive_event/{{ event.id }}">{{ event.description }}</a>
+                                                <a href="{% url "inactive_event_details" event.id %}">{{ event.description }}</a>
                                             </h2>
                                         </div>
                                         <div class="card-body-a">
-                                          <div class="price-box d-flex">
+                                            <div class="price-box d-flex">
                                             <span class="price-a">
                                                 {% if event.winner %}
                                                     {{ event.winner }}
-                                                {% elif not event.winner and event.tie%}
+                                                {% elif not event.winner and event.tie %}
                                                     TIED
                                                 {% endif %}
                                             </span>
-                                          </div>
-                                          <a href="/inactive_event/{{ event.id }}" class="link-a">Click here to see details
-                                            <span class="ion-ios-arrow-forward"></span>
-                                          </a>
+                                            </div>
+                                            <a href="{% url "inactive_event_details" event.id %}" class="link-a">Click here to see details
+                                                <span class="ion-ios-arrow-forward"></span>
+                                            </a>
                                         </div>
                                         <div class="card-footer-a">
                                             <ul class="card-info d-flex justify-content-around">
                                                 {% for group in group_list %}
-                                                    {% ifequal group.event_id event%}
+                                                    {% ifequal group.event_id event %}
                                                         <li>
 
-                                                            <h4 class="card-info-title"  style="font-size:.9rem; color: {% if event.winner == group %} GOLD; {% elif event.tie %} GRAY; {% else %} RED;{% endif %}" >{{ group.group_name }}</h4>
-                                                                {% for member in group.member.all %}
+                                                            <h4 class="card-info-title"
+                                                                style="font-size:.9rem; color: {% if event.winner == group %} GOLD; {% elif event.tie %} GRAY; {% else %} RED;{% endif %}">{{ group.group_name }}</h4>
+                                                            {% for member in group.member.all %}
                                                                 <ul>
                                                                     <li>
                                                                         <span style="color: {% if event.winner == group %} GOLD {% elif event.tie %} GRAY {% else %} RED{% endif %};">{{ member }}</span>
                                                                     </li>
                                                                 </ul>
-                                                                {% endfor %}
+                                                            {% endfor %}
                                                         </li>
                                                     {% endifequal %}
                                                 {% endfor %}

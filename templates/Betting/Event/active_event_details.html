@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load bootstrap %}
 {% block content %}
     <div class="container">
         <div class="row">
@@ -7,9 +8,9 @@
                 <div class="title-single-box">
                     <h1 class="title-single">{{ event.description }}</h1>
                     <span class="color-text-a">{{ event.event_type }}</span>
-                    {% if event.creator == user and event.active%}
-                        <form action="/removeEvent/{{ event.id }}" method="post">
-                        <br>
+                    {% if event.creator == user and event.active %}
+                        <form action="{% url "delete_event" event.id %}" method="post">
+                            <br>
                             {% csrf_token %}
                             <button class="btn btn-danger" type="submit">REMOVE EVENT</button>
                         </form>
@@ -19,139 +20,157 @@
         </div>
     </div>
     <section class="property-single nav-arrow-b">
-    <div class="container">
-        <div class="row">
-          <div class="col">
-            <div class="row justify-content-between">
-              {% for group in group_list %}
+        <div class="container">
+            <div class="row">
                 <div class="col">
-                <div class="property-summary">
-                  <div class="row">
-                    <div class="col-sm-12">
-                      <div class="title-box-d section-t4">
-                        <h3 class="title-d">{{ group.group_name }}</h3>
-                        <h5>{{ group.group_bet_amount }}x {{ group.group_bet }}</h5>
-                      </div>
-                    </div>
-                       {% if event.active %}
-                        {% if not participated %}
-                            <form action="/event/join/{{ group.id }}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-primary">JOIN GROUP</button>
-                            </form>
-                        {% elif user in group.member.all  %}
-                            <form action="/event/leave/{{ group.id }}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger">LEAVE GROUP</button>
-                            </form>
-                        {% endif %}
-                    {% endif %}
-                  </div>
-                  <div class="box-comments">
-                    <ul class="list list-comments">
-                      <li>
-                        <h3>Members</h3>
-                      </li>
-                        {% for member in group.member.all %}
-                            <li>
-                                <div class="comment-avatar">
-                                    <img src="{% static STATIC_URL %} {{ member.profile.picture }}" height="50" width="50">
-                                </div>
-                                <div class="comment-details">
-                                    <h4 class="comment-author">{{ member.username }}</h4>
-                                </div>
-                            </li>
-                            {% if event.active %}
-                                {% if not participated %}
-                                    <ul style="list-style-type: none">
-                                        <li>
-                                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#betting_on_group_{{ group.id }}_modal" >PLACE A BET</button>
-                                            <div class="modal fade" id="betting_on_group_{{ group.id }}_modal" tabindex="-1" aria-labelledby="betting_on_group_modal_label" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">New Bet</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                          <form action="/addBet/{{ group.id }}" method="post">
-                                                            {% csrf_token %}
-                                                            {{ betting_on_group_form.as_p }}
-                                                            <button type="submit" class="btn btn-primary">Bet On Group</button>
-                                                          </form>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nevermind</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                    <div class="row justify-content-between">
+                        {% for group in group_list %}
+                            <div class="col">
+                                <div class="property-summary">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="title-box-d section-t4">
+                                                <h3 class="title-d">{{ group.group_name }}</h3>
+                                                <h5>{{ group.group_bet_amount }}x {{ group.group_bet }}</h5>
                                             </div>
-                                        </li>
-                                    </ul>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                  {% for bet in bet_list %}
-                        {% ifequal bet.betting_on group %}
-                            <h4>Betters</h4>
-                                <li>
-                                    <div class="comment-avatar">
-                                        <img src="{% static STATIC_URL %} {{ bet.better.profile.picture }}" height="50" width="50">
+                                        </div>
+                                        {% if event.active %}
+                                            {% if not participated %}
+                                                <form action="{% url "join_group" group.id %}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-outline-primary">JOIN GROUP
+                                                    </button>
+                                                </form>
+                                            {% elif user in group.member.all %}
+                                                <form action="{% url "leave_group" group.id %}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-outline-danger">LEAVE GROUP
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        {% endif %}
                                     </div>
-                                <div class="comment-details">
-                                    <h4 class="comment-author">{{ bet.better.username }}</h4>
-                                    <p class="comment-description">{{ bet.amount }}x {{ bet.item }}</p>
-                                </div>
+                                    <div class="box-comments">
+                                        <ul class="list list-comments">
+                                            <li>
+                                                <h3>Members</h3>
+                                            </li>
+                                            {% for member in group.member.all %}
+                                                <li>
+                                                    <div class="comment-avatar">
+                                                        <img src="{% static STATIC_URL %} {{ member.profile.picture }}"
+                                                             height="50" width="50">
+                                                    </div>
+                                                    <div class="comment-details">
+                                                        <h4 class="comment-author">{{ member.username }}</h4>
+                                                    </div>
+                                                </li>
+                                                {% if event.active %}
+                                                    {% if not participated %}
+                                                        <ul style="list-style-type: none">
+                                                            <li>
+                                                                <button type="button" class="btn btn-outline-secondary"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#betting_on_group_{{ group.id }}_modal">
+                                                                    PLACE A BET
+                                                                </button>
+                                                                <div class="modal fade"
+                                                                     id="betting_on_group_{{ group.id }}_modal"
+                                                                     tabindex="-1"
+                                                                     aria-labelledby="betting_on_group_modal_label"
+                                                                     aria-hidden="true">
+                                                                    <div class="modal-dialog">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title" id="exampleModalLabel">New Bet</h5>
+                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <form action="{% url "create_bet" group.id %}" method="post">
+                                                                                    {% csrf_token %}
+                                                                                    {{ betting_on_group_form | bootstrap }}
+                                                                                    <button type="submit" class="btn btn-primary">Bet
+                                                                                        On Group
+                                                                                    </button>
+                                                                                </form>
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                                    Nevermind
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for bet in bet_list %}
+                                                {% ifequal bet.betting_on group %}
+                                                    <h4>Betters</h4>
+                                                    <li>
+                                                        <div class="comment-avatar">
+                                                            <img src="{% static STATIC_URL %} {{ bet.better.profile.picture }}" height="50" width="50">
+                                                        </div>
+                                                        <div class="comment-details">
+                                                            <h4 class="comment-author">{{ bet.better.username }}</h4>
+                                                            <p class="comment-description">{{ bet.amount }}x {{ bet.item }}</p>
+                                                        </div>
 
-                                </li>
-                                {% ifequal user bet.better %}
-                                    {% if bet.active %}
-                                        <form method="post" action="/removeBet/{{ bet.id }}">
-                                            {% csrf_token %}
-                                            <button class="btn btn-outline-danger" type="submit">
-                                                REMOVE BET
-                                            </button>
-                                        </form>
-                                    {% endif %}
-                                {% endifequal %}
-                            </ul>
-                        {% endifequal %}
-                    {% endfor %}
-                  </div>
+                                                    </li>
+                                                    {% ifequal user bet.better %}
+                                                        {% if bet.active %}
+                                                            <form method="post" action="{% url "remove_bet" bet.id %}">
+                                                                {% csrf_token %}
+                                                                <button class="btn btn-outline-danger" type="submit">
+                                                                    REMOVE BET
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                    {% endifequal %}
+                                                    </ul>
+                                                {% endifequal %}
+                                            {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-              </div>
-            {% endfor %}
             </div>
-          </div>
-        </div>
-        {% if event.active %}
-            {% if not participated %}
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#group_adding_modal" style="width:100%">ADD A GROUP</button>
-                <div class="modal fade" id="group_adding_modal" tabindex="-1" aria-labelledby="group_adding_modal_label" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">New Group</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                              <form action="/addGroup/{{ event.id }}" method="post">
-                                {% csrf_token %}
-                                {{ group_adding_form.as_p }}
-                                <button type="submit" class="btn btn-primary">Add Group</button>
-                              </form>
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nevermind</button>
+            {% if event.active %}
+                {% if not participated %}
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#group_adding_modal" style="width:100%">ADD A GROUP
+                    </button>
+                    <div class="modal fade" id="group_adding_modal" tabindex="-1"
+                         aria-labelledby="group_adding_modal_label" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">New Group</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{% url "create_group" event.id %}" method="post">
+                                        {% csrf_token %}
+                                        {{ group_adding_form | bootstrap }}
+                                        <button type="submit" class="btn btn-primary">Add Group</button>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nevermind
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            {% elif not user.id%}
-                <form action="/login/" method="get">
-                    <button type="submit" class="btn btn-success" style="width:100%">LOGIN TO ADD A GROUP</button>
-                </form>
+                {% elif not user.id %}
+                    <form action="{% url "login" %}" method="get">
+                        <button type="submit" class="btn btn-success" style="width:100%">LOGIN TO ADD A GROUP</button>
+                    </form>
+                {% endif %}
             {% endif %}
-        {% endif %}
-    </div>
+        </div>
 {% endblock %}

@@ -15,16 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import path, include
+from django.urls import path
 
 import Betting.views
 import Core.views
-from MoneyTalks import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Betting.views.ActiveEventView.as_view(), name="events"),
-    path('search/', Betting.views.SearchEventView.as_view(), name="events"),
+    path('search/', Betting.views.SearchEventView.as_view(), name="search"),
     path('previousEvents/', Betting.views.InactiveEventView.as_view(), name="previous_events"),
     path('signup/', Core.views.SignUpView.as_view(), name="signup"),
     path('profile/', Core.views.UserProfileView.as_view(), name="profile"),
@@ -36,11 +35,12 @@ urlpatterns = [
     path('inactive_event/<int:id>/', Betting.views.InactiveEventDetailsView.as_view(), name="inactive_event_details"),
     path('addGroup/<int:event_id>', Betting.views.CreateGroup.as_view(), name="create_group"),
     path('event/join/<int:group_id>', Betting.views.JoinGroup.as_view(), name='join_group'),
-    path('event/leave/<int:group_id>', Betting.views.LeaveGroup.as_view(), name='join_group'),
+    path('event/leave/<int:group_id>', Betting.views.LeaveGroup.as_view(), name='leave_group'),
     path('bets/', Betting.views.UserBetsView.as_view(), name="user_bets"),
     path('events/', Betting.views.UserEventsView.as_view(), name="user_events"),
     path('addBet/<int:group_id>', Betting.views.CreateBet.as_view(), name="create_bet"),
     path('removeBet/<int:bet_id>', Betting.views.RemoveBet.as_view(), name="remove_bet"),
     path('event/pickWinner/<int:group_id>', Betting.views.PickWinner.as_view(), name="pick_winner"),
     path('leaderboards/', Betting.views.Leaderboards.as_view(), name="leaderboards"),
+    path('event/addType/', Betting.views.CreateEventType.as_view(), name="create_event_type")
 ]

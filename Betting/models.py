@@ -1,16 +1,15 @@
-import os
 from datetime import timedelta
-from django.utils import timezone
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.http import HttpResponse
-from django.db.models.functions import Now
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from MoneyTalks.settings import TIME_ZONE, MEDIA_PATH, STATIC_PATH
+
+from MoneyTalks.settings import MEDIA_PATH, STATIC_PATH
 
 
 def validate_nonzero(value):
@@ -50,6 +49,17 @@ class Bet(models.Model):
     def won(self) -> bool:
         return self.event.winner == self.betting_on
 
+    @property
+    def calculate_winnings(self) -> {(str, int)}:
+        bets = Bet.objects.filter(evet=self.event_id).exclude(betting_on=self.betting_on)
+        bet_list = {}
+        for bet in bets:
+            if bet in bet_list:
+                bet_list[bet.item] += bet.amount
+            else:
+                bet_list[bet.item] = bet.amount
+        return bets
+
     def __str__(self):
         return str(self.event) + "-bet " + str(self.id)
 
@@ -60,6 +70,14 @@ class Group(models.Model):
     member = models.ManyToManyField(User, related_name="Group_Members")
     group_bet_amount = models.PositiveSmallIntegerField(validators=[MaxValueValidator(1000000), validate_nonzero])
     group_bet = models.CharField(max_length=100)
+
+    @property
+    def uneven_betting(self) -> bool:
+        groups = Group.objects.filter(event_id=self.event_id).exclude(pk=self.pk)
+        for group in groups:
+            if group.group_bet != self.group_bet:
+                return True
+        return False
 
     @property
     def calculate_winnings(self) -> {(str, int)}:
@@ -113,7 +131,7 @@ class Profile(models.Model):
 class EventType(models.Model):
     type = models.CharField(max_length=100)
     image = models.ImageField(upload_to=event_image_directory,
-                              default=MEDIA_PATH + "\default.png")
+                              default=MEDIA_PATH + "\event\default.png")
 
     def __str__(self):
         return self.type
