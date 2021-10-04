@@ -28,10 +28,6 @@ ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]']
 
 # You will need to add email information as specified here: https://docs.djangoproject.com/en/3.1/topics/email/
 # This can include:
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = '465'
-EMAIL_HOST_USER = 'notification.moneytalks@gmail.com'
-EMAIL_HOST_PASSWORD = 'Cancan99'
 # and the EMAIL_USE_TLS and EMAIL_USE_SSL settings control whether a secure connection is used.
 
 SMS_BACKEND = 'sms.backends.twilio.SmsBackend'
@@ -92,7 +88,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'moneytalks',
         'USER': 'root',
-        'PASSWORD': 'Cancan99',
+        'PASSWORD': '',
         'PORT': '3306',
         'HOST': '127.0.0.1'
     }
